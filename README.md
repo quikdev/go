@@ -20,7 +20,7 @@ By simplifying the development environment, Go developers derive the following b
 **INSTALLATION**
 
 ```sh
-go install github.com/quikdev/go
+go install github.com/quikdev/go@latest
 ```
 
 _Alternatively, download the latest binary release and add it to your `PATH`._
