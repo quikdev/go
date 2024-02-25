@@ -1,0 +1,11 @@
+{
+  "name": "qgo",
+  "version": "1.0.0-alpha.1",
+  "description": "Easily build/test Go modules, apps, and services.",
+
+  "variables": {
+    "main.name": "manifest.name",
+    "main.version": "manifest.version",
+    "main.description": "manifest.description"
+  }
+}
