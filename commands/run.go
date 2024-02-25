@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
-	"github.com/quikdev/go/context"
+	"github.com/quikdev/qgo/v1/context"
+	"github.com/quikdev/qgo/v1/util"
 
 	fs "github.com/coreybutler/go-fsutil"
 )
@@ -19,6 +21,8 @@ type Run struct {
 	Minify bool     `name:"minify" short:"m" type:"bool" help:"Set ldflags to strip debugging symbols and remove DWARF generations"`
 	Shrink bool     `name:"shrink" short:"s" type:"bool" help:"Set gccgoflags to strip debugging symbols and remove DWARF generations"`
 	DryRun bool     `name:"dry-run" short:"d" type:"bool" help:"Display the command without executing it."`
+	NoWork bool     `name:"nowork" type:"bool" help:"Set GOWORK=off when building"`
+	Update bool     `name:"update" short:"u" type:"bool" help:"Update (go mod tidy) before building."`
 	File   string   `arg:"source" optional:"" help:"Go source file (ex: main.go)"`
 	// Container string `name:"container" default:"docker" type:"string" enum:"docker,podman" help:"The containerization technology to build with"`
 }
@@ -26,6 +30,19 @@ type Run struct {
 func (b *Run) Run(c *Context) error {
 	ctx := context.New()
 	ctx.Configure()
+
+	if len(strings.TrimSpace(ctx.InputFile())) == 0 {
+		_, err := util.FindMainFileInDirectory("./")
+		if err != nil {
+			util.Stderr(err)
+			util.SubtleHighlight("Only apps with a 'package main' can be run (modules cannot be run directly).")
+			os.Exit(1)
+		}
+	}
+
+	if b.Update {
+		ctx.Tidy = true
+	}
 
 	if b.WASM {
 		ctx.OS = []string{"js"}
@@ -43,6 +60,13 @@ func (b *Run) Run(c *Context) error {
 		ctx.GCCGoFlags.Add("-w")
 	}
 
+	if !b.DryRun {
+		if ctx.Tidy {
+			util.BailOnError(util.Run("go mod tidy"))
+			fmt.Println("")
+		}
+	}
+
 	cmd := ctx.RunCommand()
 	if c.Debug {
 		b.Tips = true
@@ -58,6 +82,10 @@ func (b *Run) Run(c *Context) error {
 
 	// Run command
 	if !b.DryRun {
+		if b.NoWork {
+			os.Setenv("GOWORK", "off")
+		}
+
 		cmd.Run(ctx.CWD)
 	}
 

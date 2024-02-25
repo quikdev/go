@@ -10,9 +10,9 @@ import (
 	"sync"
 
 	tap "github.com/mpontillo/tap13"
-	"github.com/quikdev/go/context"
-	"github.com/quikdev/go/spec"
-	"github.com/quikdev/go/util"
+	"github.com/quikdev/qgo/v1/context"
+	"github.com/quikdev/qgo/v1/spec"
+	"github.com/quikdev/qgo/v1/util"
 )
 
 var (
@@ -128,7 +128,7 @@ func formatresult(format string, reader io.Reader) {
 					tapline, lastTest = tapFormat(strings.Join(lines, "\n"), lastTest)
 					if format == "spec" {
 						spec = append(spec, tapline)
-					} else {
+					} else if len(tapline) > 0 {
 						fmt.Println(tapline)
 					}
 					collecting = false
@@ -140,13 +140,16 @@ func formatresult(format string, reader io.Reader) {
 		util.Stderr(err, true)
 	}
 
+	if strings.HasPrefix(format, "tap") {
+		fmt.Printf("1..%d\n", total)
+	}
+
 	if format == "spec" {
 		result := tap.Parse(strings.Split(strings.Join(spec, "\n"), "\n"))
 		formatter.Format(result)
+		fmt.Println("")
+		formatter.Summary()
 	}
-
-	fmt.Println("")
-	formatter.Summary()
 }
 
 func tapFormat(input string, last string) (string, string) {
@@ -180,58 +183,3 @@ func tapFormat(input string, last string) (string, string) {
 
 	return out.Format(), last
 }
-
-// func (s *Test) streamTestResults(format string) {
-// 	// count = 0
-// 	// args := []string{"test", "./..."}
-// 	// if format != "go" {
-// 	// 	args = append(args, "-json")
-// 	// }
-
-// 	// if format == "tap" || format == "spec" {
-// 	// 	fmt.Println("TAP version 13")
-// 	// }
-
-// 	// cmd := exec.Command("go", args...)
-// 	// stdout, err := cmd.StdoutPipe()
-// 	// if err != nil {
-// 	// 	fmt.Println("Error creating stdout pipe:", err)
-// 	// 	return
-// 	// }
-
-// 	// if err := cmd.Start(); err != nil {
-// 	// 	fmt.Println("Error starting command:", err)
-// 	// 	return
-// 	// }
-
-// 	// var jsonData []byte
-// 	// last := ""
-// 	// var formatter Formatter
-// 	// switch format {
-// 	// case "tap":
-// 	// 	jsonData, err = ioutil.ReadAll(stdout)
-// 	// 	util.BailOnError(err)
-// 	// 	tapOutput, prev, total := jsonToTAP(count, jsonData, last)
-// 	// 	last = prev
-// 	// 	count = total
-// 	// 	fmt.Println(tapOutput)
-// 	// case "spec":
-// 	// 	formatter := spec.Formatter()
-// 	// 	jsonData, err = ioutil.ReadAll(stdout)
-// 	// 	util.BailOnError(err)
-// 	// 	tapOutput, prev, total := jsonToTAP(count, jsonData, last)
-// 	// 	last = prev
-// 	// 	count = total
-
-// 	// default:
-// 	// 	out, err := ioutil.ReadAll(stdout)
-// 	// 	util.BailOnError(err)
-// 	// 	util.Stdout(string(out))
-// 	// }
-
-// 	// // util.BailOnError(cmd.Wait())
-
-// 	// if format == "spec" || format == "tap" {
-// 	// 	fmt.Printf("1..%d", count)
-// 	// }
-// }

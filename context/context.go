@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/quikdev/go/command"
-	"github.com/quikdev/go/config"
-	"github.com/quikdev/go/util"
+	"github.com/quikdev/qgo/v1/command"
+	"github.com/quikdev/qgo/v1/config"
+	"github.com/quikdev/qgo/v1/util"
 )
 
 type Context struct {
@@ -40,6 +40,7 @@ type Context struct {
 	Name                string            `json:"name"`
 	OutputPath          string            `json:"output_dir"`
 	OutputFileName      string            `json:"output_filename"`
+	Tidy                bool
 }
 
 func New() *Context {
@@ -68,6 +69,7 @@ func New() *Context {
 		ASMFlags:            NewArgs("asmflags"),
 		GCCGoFlags:          NewArgs("gccgoflags"),
 		GCFlags:             NewArgs("gcflags"),
+		Tidy:                false,
 	}
 }
 
@@ -226,11 +228,24 @@ func (ctx *Context) Configure() {
 			}
 		}
 	}
+
+	// Configure go mod tidy
+	tidy, exists := ctx.config.Get("update")
+	if exists {
+		ctx.Tidy = tidy.(bool)
+	} else {
+		if tidy, exists = ctx.config.Get("tidy"); exists {
+			ctx.Tidy = tidy.(bool)
+		}
+	}
+
+	// Configure WASM builds
+	if wasm, exists := ctx.config.Get("wasm"); exists {
+		ctx.WASM = wasm.(bool)
+	}
 }
 
 func (ctx *Context) BuildCommand(colorized ...bool) *command.Command {
-	// TODO: Set GOOS
-	// TODO: Set GOWASM if appropriate
 	cmd := command.New()
 	cmd.Add("go", "build")
 
@@ -252,6 +267,11 @@ func (ctx *Context) BuildCommand(colorized ...bool) *command.Command {
 		if ctx.CWD != "./" {
 			cmd.Add("-C", "\""+ctx.CWD+"\"")
 		}
+	}
+
+	if ctx.WASM {
+		os.Setenv("GOOS", "js")
+		os.Setenv("GOARCH", "wasm")
 	}
 
 	// Linked Flags

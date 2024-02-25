@@ -4,13 +4,11 @@
   "description": "{{ .Description }}",
   "license": "{{ .License }}",
   "author": "{{ .Author }}",
-  "build": "{{ .Main }}",
   "variables": {
-    "main.name": "manifest.name",
-    "main.version": "manifest.version",
-    "main.description": "manifest.description"
+    "{{ .Module }}.name": "manifest.name",
+    "{{ .Module }}.version": "manifest.version",
+    "{{ .Module }}.description": "manifest.description"
   },
-  "minify": true,
   "test": {
     "format": "spec",
     "debug":  true

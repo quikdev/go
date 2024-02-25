@@ -120,9 +120,49 @@ Next, consider `go build -ldflags "-X 'main.version=1.0.0'" myapp.go && myapp.ex
 
 The `init` command provides a simple wizard to setup a new Go project. It will generate the appropriate `go.mod`, `go.work`, `manifest.json`, `README.md`, a license file, and starter code with unit tests. The wizard provides options to generate projects with the [recommended code layouts](https://go.dev/doc/modules/layout#package-or-command-with-supporting-packages) laid out by the Go team. It can also configure your git repo (optional).
 
+```sh
+Usage: qgo init
+
+Setup a new Go module or application
+
+Flags:
+  -h, --help         Show context-sensitive help.
+  -v, --version      Display the QuikGo version.
+  -o, --overwrite    If a project already exist, overwrite with no backup
+                     and no prompt.
+```
+
 ## Run & Build
 
 The build & run commands are the same. They both build the executable. Run attempts to run the program after the build completes.
+
+```sh
+Usage: qgo build [<file>]
+
+Build the Go application
+
+Arguments:
+  [<file>]    Go source file (ex: main.go)
+
+Flags:
+  -h, --help                 Show context-sensitive help.
+  -v, --version              Display the QuikGo version.
+  -b, --bundle=BUNDLE,...    Bundle the application into a tarball/zipball
+      --os=OS,...            The operating system(s) to build for
+                             (any options from 'go tool dist list' is valid)
+      --wasm                 Output a web assembly (OS is ignored when
+                             this option is true)
+  -o, --output=STRING        Output file name
+  -t, --tips                 Display tips in the generated commands
+  -m, --minify               Set ldflags to strip debugging symbols and
+                             remove DWARF generations
+  -s, --shrink               Set gccgoflags to strip debugging symbols and
+                             remove DWARF generations
+  -c, --compress             Compress with UPX
+  -d, --dry-run              Display the command without executing it.
+      --nowork               Set GOWORK=off when building
+  -u, --update               Update (go mod tidy) before building.
+```
 
 Both qgo commands output the `go` command being run, providing full transparency into what is happening on your computer. This command can be copied/pasted to run it directly. For example:
 
@@ -167,6 +207,19 @@ An optional `-d` flag (dry-run) outputs the command without running it.
 For other flags, use `--help`.
 
 ## Test
+
+```sh
+Usage: qgo test
+
+Run unit tests
+
+Flags:
+  -h, --help             Show context-sensitive help.
+  -v, --version          Display the QuikGo version.
+  -f, --format="spec"    The format to diplay test results in. Defaults to
+                         'spec', a TAP visualizer. Options include 'tap',
+                         'spec', 'json', and 'go' (i.e. go test standard)
+```
 
 The test command will run the test suite(s) the same way `go test` would, with a few differences. By default, test results will be converted to [TAP](https://testanything.org) format and output with pretty-printing (spec format).
 

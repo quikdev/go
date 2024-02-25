@@ -16,8 +16,8 @@ import (
 	"time"
 
 	"github.com/charmbracelet/huh"
-	"github.com/quikdev/go/context"
-	"github.com/quikdev/go/util"
+	"github.com/quikdev/qgo/v1/context"
+	"github.com/quikdev/qgo/v1/util"
 )
 
 type Init struct {
@@ -99,8 +99,9 @@ func (i *Init) Run(c *Context) error {
 			huh.NewSelect[string]().
 				Title("What are you creating?").
 				Options(
-					huh.NewOption("Module", "module"),
-					huh.NewOption("Command/App", "command"),
+					huh.NewOption("Go Module", "module"),
+					huh.NewOption("App/CLI", "command"),
+					huh.NewOption("Web Assembly (WASM)", "wasm"),
 					// huh.NewOption("Basic package + internal packages", "module_supported"),
 					// huh.NewOption("Basic command", "command"),
 					// huh.NewOption("Basic command + internal packages", "command_supported"),
@@ -152,7 +153,7 @@ func (i *Init) Run(c *Context) error {
 	form = huh.NewForm(
 		huh.NewGroup(
 			huh.NewInput().
-				Title("Where should the new app/module be created?").
+				Title("Where should the new project be created?").
 				Value(&location),
 			huh.NewConfirm().
 				Title("Configure git?").
@@ -353,9 +354,9 @@ func (i *Init) Run(c *Context) error {
 		}
 	}
 
+	mod := strings.Split(modulename, "/")[len(strings.Split(modulename, "/"))-1]
 	if createtype == "module" {
 		// generate module file
-		mod := strings.Split(modulename, "/")[len(strings.Split(modulename, "/"))-1]
 		source, _ = assetsFS.ReadFile("assets/module.go.tpl")
 		content = util.ApplyTemplate(source, map[string]string{
 			"Module": mod,
@@ -371,11 +372,47 @@ func (i *Init) Run(c *Context) error {
 			"Description": description,
 		})
 		util.WriteTextFile(filepath.Join(abspath, appname+"_test.go"), content, true)
+	} else if createtype == "wasm" {
+		// generate main file
+		source, _ = assetsFS.ReadFile("assets/wasm.go.tpl")
+		content = util.ApplyTemplate(source, map[string]string{})
+		util.WriteTextFile(filepath.Join(abspath, "main.go"), content, true)
+
+		// generate HTML file
+		source, _ = assetsFS.ReadFile("assets/wasm.html.tpl")
+		content = util.ApplyTemplate(source, map[string]string{
+			"Name": mod,
+		})
+		os.MkdirAll(filepath.Join(abspath, "bin"), os.ModePerm)
+		util.WriteTextFile(filepath.Join(abspath, "bin", "index.html"), content, true)
+
+		// Get the wasm_exec.js file
+		url := "https://raw.githubusercontent.com/golang/go/master/misc/wasm/wasm_exec.js"
+		resp, err := http.Get(url)
+		msg := "The wasm_exec.js file is available at " + url
+		if err != nil {
+			util.Stderr(err)
+			util.SubtleHighlight(msg)
+		} else {
+			defer resp.Body.Close()
+			file, err := os.Create(filepath.Join(abspath, "bin", "wasm_exec.js"))
+			if err != nil {
+				util.Stderr(err)
+				util.SubtleHighlight(msg)
+			} else {
+				_, err := io.Copy(file, resp.Body)
+				if err != nil {
+					util.Stderr(err)
+					util.SubtleHighlight(msg)
+				}
+			}
+		}
 	} else {
 		// generate main file
 		source, _ = assetsFS.ReadFile("assets/main.go.tpl")
 		content = util.ApplyTemplate(source, map[string]string{})
-		util.WriteTextFile(filepath.Join(abspath, "main.go"), content, true)
+		os.MkdirAll(filepath.Join(abspath, "cmd", appname), os.ModePerm)
+		util.WriteTextFile(filepath.Join(abspath, "cmd", appname, "main.go"), content, true)
 
 		// // generate main test file
 		// source, _ = assetsFS.ReadFile("assets/main_test.go.tpl")
@@ -456,8 +493,8 @@ func (i *Init) Run(c *Context) error {
 
 	// generate manifest.json
 	manifesttpl := "assets/manifest.tpl"
-	if !strings.Contains(createtype, "command") && !strings.Contains(createtype, "server") {
-		manifesttpl = "assets/module.manifest.tpl"
+	if createtype == "module" {
+		manifesttpl = "assets/manifest.module.tpl"
 	}
 	source, _ = assetsFS.ReadFile(manifesttpl)
 	if license == "custom" {
@@ -467,6 +504,10 @@ func (i *Init) Run(c *Context) error {
 	if createtype == "command" {
 		mainfile = "main.go"
 	}
+	wasm := "false"
+	if createtype == "wasm" {
+		wasm = "true"
+	}
 	content = util.ApplyTemplate(source, map[string]string{
 		"Author":      author,
 		"Name":        appname,
@@ -474,11 +515,20 @@ func (i *Init) Run(c *Context) error {
 		"License":     license,
 		"Main":        mainfile,
 		"Version":     "0.0.1",
+		"Module":      mod,
+		"WASM":        wasm,
 	})
 	util.WriteTextFile(filepath.Join(abspath, "manifest.json"), content, true)
 
 	// Initialize go work
 	err = util.Run("go work init", abspath)
+	if err != nil {
+		if !strings.Contains(err.Error(), "already exists") {
+			util.Stderr(err)
+		}
+	}
+
+	err = util.Run("go work use .", abspath)
 	if err != nil {
 		util.Stderr(err)
 	}
