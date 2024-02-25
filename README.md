@@ -19,7 +19,7 @@ By simplifying the development environment, Go developers derive the following b
 
 **INSTALLATION**
 
-```bash
+```sh
 go install github.com/quikdev/go
 ```
 
@@ -58,7 +58,7 @@ For example, consider the following `manifest.json` file:
 
 Executing `qgo run` will generate and run the following command:
 
-```bash
+```sh
 go build \
    -C .\path\to\root \
    -v \
@@ -126,7 +126,7 @@ The build & run commands are the same. They both build the executable. Run attem
 
 Both qgo commands output the `go` command being run, providing full transparency into what is happening on your computer. This command can be copied/pasted to run it directly. For example:
 
-```bash
+```sh
 Using package.json configuration
 
 go build \
@@ -149,7 +149,7 @@ go build \
 
 An optional `-t` flag adds tooltips to the output command. For example:
 
-```bash
+```sh
 go build \
    -v (print package names as they are compiled) \
    -ldflags (link arguments to go tool) " \
