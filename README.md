@@ -19,7 +19,9 @@ By simplifying the development environment, Go developers derive the following b
 
 **INSTALLATION**
 
-`go install github.com/quikdev/go`
+```bash
+go install github.com/quikdev/go
+```
 
 _Alternatively, download the latest binary release and add it to your `PATH`._
 
@@ -29,7 +31,7 @@ _Alternatively, download the latest binary release and add it to your `PATH`._
 
 For example, consider the following `manifest.json` file:
 
-```json
+```js
 {
   "name": "demo",                               // Ouput name
   "version": "1.0.0",                           // Version number
@@ -56,7 +58,7 @@ For example, consider the following `manifest.json` file:
 
 Executing `qgo run` will generate and run the following command:
 
-```sh
+```bash
 go build \
    -C .\path\to\root \
    -v \
@@ -124,7 +126,7 @@ The build & run commands are the same. They both build the executable. Run attem
 
 Both qgo commands output the `go` command being run, providing full transparency into what is happening on your computer. This command can be copied/pasted to run it directly. For example:
 
-```sh
+```bash
 Using package.json configuration
 
 go build \
@@ -147,7 +149,7 @@ go build \
 
 An optional `-t` flag adds tooltips to the output command. For example:
 
-```sh
+```bash
 go build \
    -v (print package names as they are compiled) \
    -ldflags (link arguments to go tool) " \
@@ -174,7 +176,7 @@ The test command will run the test suite(s) the same way `go test` would, with a
 
 Pretty-printing can be disabled if you prefer to use an alternative TAP renderer. The raw format would be available as:
 
-```sh
+```
 TAP version 14
 # THIS IS A SUITE
 # test 1
@@ -199,7 +201,7 @@ It is also possible to ignore the TAP conversion to leverage the standard go out
 
 These settings can be configured in the `package.json`/`manifest.json` files under the `test` attribute:
 
-```json
+```js
 {
   "test": {
     "format": "none|tap|tap13|spec|json", // spec is the pretty output/default
