@@ -376,7 +376,7 @@ func (i *Init) Run(c *Context) error {
 		// generate main file
 		source, _ = assetsFS.ReadFile("assets/wasm.go.tpl")
 		content = util.ApplyTemplate(source, map[string]string{})
-		util.WriteTextFile(filepath.Join(abspath, "main.go"), content, true)
+		util.WriteTextFile(filepath.Join(abspath, "main.go"), strings.ReplaceAll(content, "&lt;", "<"), true)
 
 		// generate HTML file
 		source, _ = assetsFS.ReadFile("assets/wasm.html.tpl")

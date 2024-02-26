@@ -41,6 +41,7 @@ type Context struct {
 	OutputPath          string            `json:"output_dir"`
 	OutputFileName      string            `json:"output_filename"`
 	Tidy                bool
+	Port                int
 }
 
 func New() *Context {
@@ -243,6 +244,11 @@ func (ctx *Context) Configure() {
 	if wasm, exists := ctx.config.Get("wasm"); exists {
 		ctx.WASM = wasm.(bool)
 	}
+
+	// Configure port (WASM server)
+	if port, exists := ctx.config.Get("port"); exists {
+		ctx.Port = int(port.(float64))
+	}
 }
 
 func (ctx *Context) BuildCommand(colorized ...bool) *command.Command {
@@ -355,10 +361,13 @@ func (ctx *Context) BuildCommand(colorized ...bool) *command.Command {
 
 func (ctx *Context) RunCommand(colorized ...bool) *command.Command {
 	cmd := ctx.BuildCommand(colorized...)
-	out := strings.Replace(ctx.Output(), ctx.CWD, ".", 1)
-	out = strings.Replace(out, ".go", "", 1)
-	// out = strings.ReplaceAll(out, "\\", "/")
-	cmd.Add("&&", out)
+
+	if !ctx.WASM {
+		out := strings.Replace(ctx.Output(), ctx.CWD, ".", 1)
+		out = strings.Replace(out, ".go", "", 1)
+		// out = strings.ReplaceAll(out, "\\", "/")
+		cmd.Add("&&", out)
+	}
 
 	return cmd
 }

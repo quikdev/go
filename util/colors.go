@@ -44,6 +44,11 @@ func Command(cmd ...string) {
 	fmt.Println(command(cmd...))
 }
 
+func HighlightComment(txt string) {
+	colorize := color.New(color.FgMagenta, color.Faint).SprintFunc()
+	fmt.Println(colorize("# " + txt))
+}
+
 func HighlightCommand(cmd string, args ...string) {
 	dim := color.New(color.FgYellow, color.Faint).SprintFunc()
 	c := command(cmd)
