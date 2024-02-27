@@ -20,7 +20,7 @@ By simplifying the development environment, Go developers derive the following b
 **INSTALLATION**
 
 ```sh
-go install github.com/quikdev/go@latest
+go install go install github.com/quikdev/go/v1/cmd/qgo@latest
 ```
 
 _Alternatively, download the latest binary release and add it to your `PATH`._
@@ -106,9 +106,9 @@ MpCmdRun.exe -AddDynamicSignature -Path C:\path\to\my.exe
 Alternatively, use the GUI:
 
 1. Open Windows Security.
-1. Go to Virus & threat protection.
-1. Under Exclusions, select Add or remove exclusions.
-1. Select Add an exclusion, and choose the file you want to exclude.
+2. Go to Virus & threat protection.
+3. Under Exclusions, select Add or remove exclusions.
+4. Select Add an exclusion, and choose the file you want to exclude.
 
 #### Versioning
 
