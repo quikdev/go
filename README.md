@@ -162,6 +162,7 @@ Flags:
       --tiny                 Use tinygo (if available) instead of go to build.
   -d, --dry-run              Display the command without executing it.
       --nowork               Set GOWORK=off when building
+      --no-cache             Ignore the cache and rebuild, even if no Go files have changed.
   -u, --update               Update (go mod tidy) before building.
 ```
 
@@ -310,8 +311,9 @@ These settings can be configured in the `package.json`/`manifest.json` files und
   "modcacherw": true,                       // Leave newly-created directories in the module cache read-write instead of making them read-only
   "modfile": "file",                        // In module aware mode, read an alternate go.mod file
   "msan": true,                             // Enable interoperation with memory sanitizer
-  "name": "myapp",                          // Project name
   "n": true,                                // Print the commands but do not run them
+  "name": "myapp",                          // Project name
+  "no-cache": false,                        // Set to true to forcibly rebuild/ignore the cache.
   "overlay": "file",                        // Read a JSON config file that provides an overlay for build operations
   "package.variable": "manifest.name",      // Self referencing value
   "package.variable2": "env.VARIABLE",      // Environment variable
