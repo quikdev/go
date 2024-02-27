@@ -4,10 +4,13 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"github.com/quikdev/go/v1/util"
 )
 
 type Command struct {
@@ -86,10 +89,10 @@ func (cmd *Command) Run(cwd ...string) {
 		}
 
 		c := exec.Command(code[0], args[1:]...)
-		// curr, _ := os.Getwd()
+		curr, _ := os.Getwd()
 		if len(cwd) > 0 {
-			if cwd[0] != "./" {
-				fmt.Printf("\nUsing \"%s\" as working directory...\n", cwd[0])
+			if cwd[0] != "./" && cwd[0] != curr {
+				util.Stdout(fmt.Sprintf("# using \"%s\" as working directory...\n", cwd[0]))
 			}
 			c.Dir = cwd[0]
 		}

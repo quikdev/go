@@ -18,18 +18,19 @@ import (
 )
 
 type Run struct {
-	Bundle []string `name:"bundle" short:"b" type:"string" help:"Bundle the application into a tarball/zipball" enum:"zip,tar"`
-	OS     []string `name:"os" type:"string" help:"The operating system(s) to build for (any options from 'go tool dist list' is valid)"`
-	WASM   bool     `name:"wasm" type:"bool" help:"Output a web assembly (OS is ignored when this option is true)"`
-	Output string   `name:"output" short:"o" type:"string" help:"Output file name"`
-	Tips   bool     `name:"tips" short:"t" type:"bool" help:"Display tips in the generated commands"`
-	Minify bool     `name:"minify" short:"m" type:"bool" help:"Set ldflags to strip debugging symbols and remove DWARF generations"`
-	Shrink bool     `name:"shrink" short:"s" type:"bool" help:"Set gccgoflags to strip debugging symbols and remove DWARF generations"`
-	DryRun bool     `name:"dry-run" short:"d" type:"bool" help:"Display the command without executing it."`
-	NoWork bool     `name:"nowork" type:"bool" help:"Set GOWORK=off when building"`
-	Update bool     `name:"update" short:"u" type:"bool" help:"Update (go mod tidy) before building."`
-	Port   int      `name:"port" short:"p" help:"The port to run the HTTP server on (WASM only)."`
-	File   string   `arg:"source" optional:"" help:"Go source file (ex: main.go)"`
+	Bundle      []string `name:"bundle" short:"b" type:"string" help:"Bundle the application into a tarball/zipball" enum:"zip,tar"`
+	OS          []string `name:"os" type:"string" help:"The operating system(s) to build for (any options from 'go tool dist list' is valid)"`
+	WASM        bool     `name:"wasm" type:"bool" help:"Output a web assembly (OS is ignored when this option is true)"`
+	Output      string   `name:"output" short:"o" type:"string" help:"Output file name"`
+	Tips        bool     `name:"tips" short:"t" type:"bool" help:"Display tips in the generated commands"`
+	Minify      bool     `name:"minify" short:"m" type:"bool" help:"Set ldflags to strip debugging symbols and remove DWARF generations"`
+	Shrink      bool     `name:"shrink" short:"s" type:"bool" help:"Set gccgoflags to strip debugging symbols and remove DWARF generations"`
+	DryRun      bool     `name:"dry-run" short:"d" type:"bool" help:"Display the command without executing it."`
+	NoWork      bool     `name:"nowork" type:"bool" help:"Set GOWORK=off when building"`
+	Update      bool     `name:"update" short:"u" type:"bool" help:"Update (go mod tidy) before building."`
+	Port        int      `name:"port" short:"p" help:"The port to run the HTTP server on (WASM only)."`
+	IgnoreCache bool     `name:"no-cache" type:"bool" help:"Ignore the cache and rebuild, even if no Go files have changed."`
+	File        string   `arg:"source" optional:"" help:"Go source file (ex: main.go)"`
 	// Container string `name:"container" default:"docker" type:"string" enum:"docker,podman" help:"The containerization technology to build with"`
 }
 
@@ -44,6 +45,10 @@ func (b *Run) Run(c *Context) error {
 			util.SubtleHighlight("Only apps with a 'package main' can be run (modules cannot be run directly).")
 			os.Exit(1)
 		}
+	}
+
+	if b.IgnoreCache {
+		ctx.IgnoreCache = b.IgnoreCache
 	}
 
 	if b.Update {
@@ -66,20 +71,23 @@ func (b *Run) Run(c *Context) error {
 		ctx.GCCGoFlags.Add("-w")
 	}
 
-	if !b.DryRun {
-		if ctx.Tidy {
-			util.BailOnError(util.Run("go mod tidy"))
-			fmt.Println("")
-		}
-	}
-
+	// Run this before go mod tidy to determine whether the output is cached
 	cmd := ctx.RunCommand()
 	if c.Debug {
 		b.Tips = true
 	}
 
+	if !b.DryRun {
+		if ctx.Tidy {
+			if !ctx.Cached {
+				util.BailOnError(util.Run("go mod tidy"))
+				fmt.Println("")
+			}
+		}
+	}
+
 	// Display command
-	fmt.Println(cmd.Display(b.Tips))
+	fmt.Println(cmd.Display(b.Tips) + "\n")
 
 	parentdir := filepath.Dir(ctx.Output())
 	if !fs.Exists(parentdir) {

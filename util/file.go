@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	fs "github.com/coreybutler/go-fsutil"
 )
@@ -134,4 +135,26 @@ func ApplyTemplate(tpl []byte, data interface{}) string {
 	}
 
 	return buffer.String()
+}
+
+func GetLastChange(dirs ...string) (time.Time, error) {
+	var lastChange time.Time
+
+	for _, dir := range dirs {
+		err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if filepath.Ext(path) == ".go" && info.ModTime().After(lastChange) {
+				lastChange = info.ModTime()
+			}
+			return nil
+		})
+
+		if err != nil {
+			return time.Time{}, err
+		}
+	}
+
+	return lastChange, nil
 }

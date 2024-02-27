@@ -42,8 +42,10 @@ func readJSON(file string) (map[string]interface{}, error) {
 			return data, err
 		}
 
-		magenta := color.New(color.FgMagenta, color.Bold).SprintFunc()
-		fmt.Printf(magenta("\nUsing %s configuration\n\n"), file)
+		magenta := color.New(color.FgMagenta, color.Faint).SprintFunc()
+		dim := color.New(color.Faint).SprintFunc()
+		fmt.Printf(dim("\n# using "+magenta("%s")+dim(" configuration\n")), file)
+		fmt.Println("")
 	}
 
 	return data, nil

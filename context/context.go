@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	fs "github.com/coreybutler/go-fsutil"
 	"github.com/quikdev/go/v1/command"
 	"github.com/quikdev/go/v1/config"
 	"github.com/quikdev/go/v1/util"
@@ -44,6 +45,8 @@ type Context struct {
 	Port                int
 	Tiny                bool
 	UPX                 bool
+	IgnoreCache         bool
+	Cached              bool
 }
 
 func New() *Context {
@@ -75,6 +78,8 @@ func New() *Context {
 		Tidy:                false,
 		Tiny:                false,
 		UPX:                 false,
+		IgnoreCache:         false,
+		Cached:              false,
 	}
 }
 
@@ -280,10 +285,56 @@ func (ctx *Context) Configure() {
 			ctx.GCCGoFlags.Add("-w")
 		}
 	}
+
+	if nocache, exists := ctx.config.Get("no-cache"); exists {
+		ctx.IgnoreCache = nocache.(bool)
+	}
+}
+
+func (ctx *Context) isOutdated(bin string) bool {
+	if !fs.Exists(bin) {
+		return true
+	}
+
+	lastChange, err := util.GetLastChange(ctx.CWD)
+	if err != nil {
+		if strings.Contains(err.Error(), "cannot find the") {
+			return true
+		}
+
+		util.Stderr(err)
+
+		return false
+	}
+
+	binInfo, err := os.Stat(bin)
+	if err != nil {
+		util.Stderr(err)
+		return false
+	}
+
+	return lastChange.After(binInfo.ModTime())
 }
 
 func (ctx *Context) BuildCommand(colorized ...bool) *command.Command {
 	cmd := command.New()
+
+	// Identify output file
+	out := strings.Replace(ctx.Output(), ctx.CWD, ".", 1)
+	if ctx.CWD == "./" {
+		wd, _ := os.Getwd()
+		out = strings.Replace(out, wd, "./", 1)
+	}
+	out = strings.ReplaceAll(out, "\\", "/")
+	out = strings.Replace(out, ".go", "", 1)
+	out = strings.Replace(strings.Replace(out, "./\\", ".\\", 1), ".//", "./", 1)
+
+	if !ctx.isOutdated(out) && !ctx.IgnoreCache {
+		ctx.Cached = true
+		util.Stdout("# using cached build (qgo build --no-cache to force rebuild)\n")
+		return cmd
+	}
+
 	if ctx.Tiny {
 		cmd.Add("tinygo")
 	} else {
@@ -383,14 +434,7 @@ func (ctx *Context) BuildCommand(colorized ...bool) *command.Command {
 	}
 
 	// Add output
-	out := strings.Replace(ctx.Output(), ctx.CWD, ".", 1)
-	if ctx.CWD == "./" {
-		wd, _ := os.Getwd()
-		out = strings.Replace(out, wd, "./", 1)
-	}
-	out = strings.ReplaceAll(out, "\\", "/")
-	out = strings.Replace(out, ".go", "", 1)
-	cmd.Add("-o", strings.Replace(strings.Replace(out, "./\\", ".\\", 1), ".//", "./", 1))
+	cmd.Add("-o", out)
 
 	if ctx.Tiny {
 		cmd.Add("-target=wasm")
@@ -408,7 +452,10 @@ func (ctx *Context) RunCommand(colorized ...bool) *command.Command {
 		out := strings.Replace(ctx.Output(), ctx.CWD, ".", 1)
 		out = strings.Replace(out, ".go", "", 1)
 		// out = strings.ReplaceAll(out, "\\", "/")
-		cmd.Add("&&", out)
+		if len(strings.TrimSpace(cmd.String())) > 0 {
+			cmd.Add("&&")
+		}
+		cmd.Add(out)
 	}
 
 	return cmd
