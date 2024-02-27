@@ -6,7 +6,7 @@
   "author": "{{ .Author }}",
   "build": "{{ .Main }}",
   "update": true,
-  "upx": false,
+  "wasm": {{ .WASM }},
   "tiny": false,
   "variables": {
     "main.name": "manifest.name",

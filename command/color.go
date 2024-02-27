@@ -25,6 +25,7 @@ func colorize(input string, displayhelp ...bool) string {
 	magentaDim := color.New(color.FgMagenta, color.Faint).SprintFunc()
 	magentaItalic := color.New(color.FgMagenta, color.Italic).SprintFunc()
 	magentaBright := color.New(color.FgHiMagenta).SprintFunc()
+	greenDim := color.New(color.FgHiGreen, color.Faint, color.Italic).SprintFunc()
 	yellow := color.New(color.FgYellow).SprintFunc()
 	yellowDim := color.New(color.FgYellow, color.Faint).SprintFunc()
 	yellowDimItalic := color.New(color.FgYellow, color.Faint, color.Italic).SprintFunc()
@@ -58,6 +59,8 @@ func colorize(input string, displayhelp ...bool) string {
 		}
 
 		switch strings.ToLower(strings.TrimSpace(part)) {
+		case "tinygo":
+			result[i] = greenDim(part)
 		case "go":
 			result[i] = dim(part)
 		case "-ldflags":
@@ -216,7 +219,7 @@ func colorize(input string, displayhelp ...bool) string {
 					}
 
 					if startsWithQuote {
-						result[i] = dim(" \\") + "\n    " + result[i]
+						result[i] = yellowDimBold("\"") + dim(" \\") + "\n    " + result[i]
 					}
 
 					if help && part[0:1] == "-" {
@@ -253,7 +256,7 @@ func colorize(input string, displayhelp ...bool) string {
 					}
 
 					if startsWithQuote {
-						result[i] = dim(" \\") + "\n    " + result[i]
+						result[i] = yellowDimBold("\"") + dim(" \\") + "\n    " + result[i]
 					}
 
 					if help && part[0:1] == "-" {
@@ -290,7 +293,7 @@ func colorize(input string, displayhelp ...bool) string {
 					}
 
 					if startsWithQuote {
-						result[i] = dim(" \\") + "\n    " + result[i]
+						result[i] = yellowDimBold("\"") + dim(" \\") + "\n    " + result[i]
 					}
 
 					if help && part[0:1] == "-" {

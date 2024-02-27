@@ -23,6 +23,7 @@ type Build struct {
 	Minify   bool     `name:"minify" short:"m" type:"bool" help:"Set ldflags to strip debugging symbols and remove DWARF generations"`
 	Shrink   bool     `name:"shrink" short:"s" type:"bool" help:"Set gccgoflags to strip debugging symbols and remove DWARF generations"`
 	Compress bool     `name:"compress" short:"c" type:"bool" help:"Compress with UPX"`
+	Tiny     bool     `name:"tiny" type:"bool" help:"Use tinygo (if available) instead of go to build."`
 	DryRun   bool     `name:"dry-run" short:"d" type:"bool" help:"Display the command without executing it."`
 	NoWork   bool     `name:"nowork" type:"bool" help:"Set GOWORK=off when building"`
 	Update   bool     `name:"update" short:"u" type:"bool" help:"Update (go mod tidy) before building."`
@@ -47,10 +48,19 @@ func (b *Build) Run(c *Context) error {
 		ctx.Tidy = true
 	}
 
+	if b.Tiny {
+		ctx.Tiny = b.Tiny
+	}
+
 	if b.WASM {
 		ctx.OS = []string{"js"}
 	} else {
 		ctx.OS = b.OS
+	}
+
+	// Autorecognize UPX support
+	if b.Compress == util.EmptyBool {
+		b.Compress = ctx.UPX
 	}
 
 	if b.Minify {

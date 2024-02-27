@@ -92,8 +92,6 @@ func (b *Run) Run(c *Context) error {
 			os.Setenv("GOWORK", "off")
 		}
 
-		cmd.Run(ctx.CWD)
-
 		if ctx.WASM {
 			root := filepath.Dir(ctx.Output())
 

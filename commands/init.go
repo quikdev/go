@@ -496,6 +496,9 @@ func (i *Init) Run(c *Context) error {
 	if createtype == "module" {
 		manifesttpl = "assets/manifest.module.tpl"
 	}
+	if createtype == "wasm" {
+		manifesttpl = "assets/manifest.wasm.tpl"
+	}
 	source, _ = assetsFS.ReadFile(manifesttpl)
 	if license == "custom" {
 		license = "SEE LICENSE IN LICENSE"

@@ -5,6 +5,7 @@
   "license": "{{ .License }}",
   "author": "{{ .Author }}",
   "build": "{{ .Main }}",
+  "tiny": false,
   "variables": {
     "name": "manifest.name",
     "version": "manifest.version",

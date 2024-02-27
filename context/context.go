@@ -42,6 +42,8 @@ type Context struct {
 	OutputFileName      string            `json:"output_filename"`
 	Tidy                bool
 	Port                int
+	Tiny                bool
+	UPX                 bool
 }
 
 func New() *Context {
@@ -71,6 +73,8 @@ func New() *Context {
 		GCCGoFlags:          NewArgs("gccgoflags"),
 		GCFlags:             NewArgs("gcflags"),
 		Tidy:                false,
+		Tiny:                false,
+		UPX:                 false,
 	}
 }
 
@@ -191,6 +195,14 @@ func (ctx *Context) Configure() {
 		ctx.CWD = cwd.(string)
 	}
 
+	// Configure UPX (compress)
+	if upx, exists := ctx.config.Get("compress"); exists {
+		ctx.UPX = upx.(bool)
+	}
+	if upx, exists := ctx.config.Get("upx"); exists {
+		ctx.UPX = upx.(bool)
+	}
+
 	// Configure other flags
 	generics := []string{"a", "n", "race", "msan", "asan", "cover", "v", "work", "x", "modcacherw", "trimpath"}
 	for _, item := range generics {
@@ -249,11 +261,36 @@ func (ctx *Context) Configure() {
 	if port, exists := ctx.config.Get("port"); exists {
 		ctx.Port = int(port.(float64))
 	}
+
+	// Configure tinygo
+	if tgo, exists := ctx.config.Get("tiny"); exists {
+		ctx.Tiny = tgo.(bool)
+	}
+
+	// Configure tinygo
+	if minify, exists := ctx.config.Get("minify"); exists {
+		val := minify.(bool)
+		ctx.StripSymbols = val
+		ctx.StripDebugging = val
+	}
+
+	if shrink, exists := ctx.config.Get("shrink"); exists {
+		if shrink.(bool) {
+			ctx.GCCGoFlags.Add("-s")
+			ctx.GCCGoFlags.Add("-w")
+		}
+	}
 }
 
 func (ctx *Context) BuildCommand(colorized ...bool) *command.Command {
 	cmd := command.New()
-	cmd.Add("go", "build")
+	if ctx.Tiny {
+		cmd.Add("tinygo")
+	} else {
+		cmd.Add("go")
+	}
+
+	cmd.Add("build")
 
 	if ctx.CWD != "./" {
 		if ctx.CWD[0:1] == "\"" {
@@ -354,6 +391,11 @@ func (ctx *Context) BuildCommand(colorized ...bool) *command.Command {
 	out = strings.ReplaceAll(out, "\\", "/")
 	out = strings.Replace(out, ".go", "", 1)
 	cmd.Add("-o", strings.Replace(strings.Replace(out, "./\\", ".\\", 1), ".//", "./", 1))
+
+	if ctx.Tiny {
+		cmd.Add("-target=wasm")
+	}
+
 	cmd.Add(strings.TrimSpace(strings.ReplaceAll(ctx.InputFile(), " ", "\\ ")))
 
 	return cmd
