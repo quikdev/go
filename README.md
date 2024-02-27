@@ -20,7 +20,13 @@ By simplifying the development environment, Go developers derive the following b
 **INSTALLATION**
 
 ```sh
-go install github.com/quikdev/go/v1/cmd/qgo@latest
+go install \
+  -ldflags=" \
+    -X 'main.version=1.0.0' \
+    -X 'main.name=qgo' \
+    -X 'main.description=Easily build/test Go modules, apps, and services.' \
+  " \
+  github.com/quikdev/go/v1/cmd/qgo
 ```
 
 _Alternatively, download the latest binary release and add it to your `PATH`._
