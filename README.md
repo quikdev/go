@@ -321,6 +321,10 @@ These settings can be configured in the `package.json`/`manifest.json` files und
   "port": 8000,                             // Port to run WASM test server on
   "shrink": false,                          // Strip debugging symbols when using GCC
   "tags": ["tag_a", "tag_b"],               // Build tags
+  "test": {
+    "format": "none|tap|tap13|spec|json",   // spec is the pretty output/default
+    "debug": false                          // run tests with debugging turned on
+  }
   "tidy": true,                             // Alias for update
   "tiny": false,                            // Use tinygo instead of go
   "toolexec": "cmd args",                   // A program to use to invoke toolchain programs like vet and asm
