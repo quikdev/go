@@ -10,9 +10,9 @@ import (
 	"sync"
 
 	tap "github.com/mpontillo/tap13"
-	"github.com/quikdev/qgo/v1/context"
-	"github.com/quikdev/qgo/v1/spec"
-	"github.com/quikdev/qgo/v1/util"
+	"github.com/quikdev/go/v1/context"
+	"github.com/quikdev/go/v1/spec"
+	"github.com/quikdev/go/v1/util"
 )
 
 var (

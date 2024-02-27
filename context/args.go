@@ -3,7 +3,7 @@ package context
 import (
 	"strings"
 
-	"github.com/quikdev/qgo/v1/util"
+	"github.com/quikdev/go/v1/util"
 )
 
 type args struct {

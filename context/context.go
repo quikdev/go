@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/quikdev/qgo/v1/command"
-	"github.com/quikdev/qgo/v1/config"
-	"github.com/quikdev/qgo/v1/util"
+	"github.com/quikdev/go/v1/command"
+	"github.com/quikdev/go/v1/config"
+	"github.com/quikdev/go/v1/util"
 )
 
 type Context struct {

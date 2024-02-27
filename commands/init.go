@@ -16,8 +16,8 @@ import (
 	"time"
 
 	"github.com/charmbracelet/huh"
-	"github.com/quikdev/qgo/v1/context"
-	"github.com/quikdev/qgo/v1/util"
+	"github.com/quikdev/go/v1/context"
+	"github.com/quikdev/go/v1/util"
 )
 
 type Init struct {
