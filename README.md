@@ -58,7 +58,7 @@ For example, consider the following `manifest.json` file:
 
 Executing `qgo run` will generate and run the following command:
 
-```sh
+```go
 go build \
    -C .\path\to\root \
    -v \
@@ -167,7 +167,7 @@ Flags:
 
 Both qgo commands output the `go` command being run, providing full transparency into what is happening on your computer. This command can be copied/pasted to run it directly. For example:
 
-```sh
+```go
 Using package.json configuration
 
 go build \
@@ -190,7 +190,7 @@ go build \
 
 An optional `-t` flag adds tooltips to the output command. For example:
 
-```sh
+```go
 go build \
    -v (print package names as they are compiled) \
    -ldflags (link arguments to go tool) " \
