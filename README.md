@@ -296,7 +296,7 @@ The `qgo uninstall` command is a convenience utility for "uninstalling" applicat
 
 Go does not provide a way to do this. To remove an installed app, you need to know whether it is stored in the `GOBIN` or `GOPATH` root, which can vary depending on how Go is setup on a computer.
 
-Developers often use a command, but forget where it comes from, especially when it is not defined on the system or user `PATH`. In other words, developers know the name of the app, but not where it is stored.
+It's easy to forget where a utility is installed, especially when it is not defined on the system or user `PATH`. Developers often know the name of the app, but forget where it is stored.
 
 QuikGo simplifies this. Run `qgo uninstall [app_name]` to uninstall a specific application. If you do not know the specific name, run `qgo uninstall` to be prompted with a list of all available applications. For example:
 
@@ -304,7 +304,7 @@ QuikGo simplifies this. Run `qgo uninstall [app_name]` to uninstall a specific a
 
 The uninstall process is very basic. It finds the file and deletes it (with a warning).
 
-For programmatic use to ignore the warning, pass the `--no-warn` flag to the command. For example, `qgo uninstall --no-warn myapp`.
+For programmatic use, pass the `--no-warn` flag if you want to skip the warning/prompt. For example, `qgo uninstall --no-warn myapp`.
 
 ## Full List of Manifest/Package Options
 
@@ -364,4 +364,4 @@ For programmatic use to ignore the warning, pass the `--no-warn` flag to the com
 
 ---
 
-Copyright &copy; 2024, Author Software, Inc. and collaborators.
+Copyright &copy; 2024, Corey Butler, Author Software, Inc., and collaborators.
