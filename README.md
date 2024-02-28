@@ -1,12 +1,17 @@
 # QuikGo (qgo)
 
-QuikGo is a development tool providing a simple workflow for building Go applications. It wraps go tools, providing a simple and consistent developer experience across projects and adds [support for a `manifest.json` or `package.json`](#automation).
+QuikGo expands upon the Go toolchain, providing a simple and consistent developer experience across projects.
 
-Developers need to remember a few basic commands:
+QuikGo adds:
+- [support for a `manifest.json`/`package.json` file](#automation), allowing commands like `build` and `run` to provide more complex configurations (ex: automatic `go mod tidy`, ldflags/variable substitution, minification, etc) without a complex command.
+- New project initialization with working code (modules/packages, apps/commands, WASM).
+- Integrated support for UPX, TinyGo, and other utilities.
+
+Developers only need to remember a few basic commands:
 
 | Basic Command             | Description                                                  |
 | ------------------------- | :----------------------------------------------------------- |
-| [`qgo init`](#init)        | Initialize a new app.                                        |
+| [`qgo init`](#init)        | Initialize a new app (with templates).                                        |
 | [`qgo run`](#run--build)   | Like `go run`, but reads configuration from JSON.          |
 | [`qgo build`](#run--build) | Like `go build` but reads configuration from JSON.         |
 | [`qgo test`](#test)         | Run the test suite with TAP/formatted output (pretty tests). |
