@@ -364,4 +364,4 @@ For programmatic use, pass the `--no-warn` flag if you want to skip the warning/
 
 ---
 
-Copyright &copy; 2024, Corey Butler, Author Software, Inc., and collaborators.
+Copyright &copy; 2024, [Corey Butler](https://github.com/coreybutler), [Author Software, Inc.](https://github.com/author), and collaborators.
