@@ -9,7 +9,8 @@ Developers need to remember a few basic commands:
 | [`qgo init`](#init)        | Initialize a new app.                                        |
 | [`qgo run`](#run--build)   | Like `go run`, but reads configuration from JSON.          |
 | [`qgo build`](#run--build) | Like `go build` but reads configuration from JSON.         |
-| [`qgo test`](test)         | Run the test suite with TAP/formatted output (pretty tests). |
+| [`qgo test`](#test)         | Run the test suite with TAP/formatted output (pretty tests). |
+| [`qgo uninstall`](#uninstall) | Uninstall apps that were installed with `go install`. |
 
 By simplifying the development environment, Go developers derive the following benefits:
 
@@ -288,6 +289,22 @@ These settings can be configured in the `package.json`/`manifest.json` files und
   }
 }
 ```
+
+## Uninstall
+
+The `qgo uninstall` command is a convenience utility for "uninstalling" applications that were installed using `go install` (i.e. like QuikGo itself).
+
+Go does not provide a way to do this. To remove an installed app, you need to know whether it is stored in the `GOBIN` or `GOPATH` root, which can vary depending on how Go is setup on a computer.
+
+Developers often use a command, but forget where it comes from, especially when it is not defined on the system or user `PATH`. In other words, developers know the name of the app, but not where it is stored.
+
+QuikGo simplifies this. Run `qgo uninstall [app_name]` to uninstall a specific application. If you do not know the specific name, run `qgo uninstall` to be prompted with a list of all available applications. For example:
+
+![1709090253159](image/README/1709090253159.png)
+
+The uninstall process is very basic. It finds the file and deletes it (with a warning).
+
+For programmatic use to ignore the warning, pass the `--no-warn` flag to the command. For example, `qgo uninstall --no-warn myapp`.
 
 ## Full List of Manifest/Package Options
 
