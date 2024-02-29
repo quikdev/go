@@ -3,19 +3,20 @@
 QuikGo expands upon the Go toolchain, providing a simple and consistent developer experience across projects.
 
 QuikGo adds:
+
 - [`manifest.json`/`package.json` files](#automation). Commands like `build` and `run` provide more complex configurations (ex: automatic `go mod tidy`, ldflags/variable substitution, minification, etc) without a complex command.
 - New project initialization with working code (modules/packages, apps/commands, WASM).
 - Integrated support for UPX, TinyGo, and other utilities.
 
 Developers only need to remember a few basic commands:
 
-| Basic Command             | Description                                                  |
-| ------------------------- | :----------------------------------------------------------- |
-| [`qgo init`](#init)        | Initialize a new app (with templates).                                        |
-| [`qgo run`](#run--build)   | Like `go run`, but reads configuration from JSON.          |
-| [`qgo build`](#run--build) | Like `go build` but reads configuration from JSON.         |
-| [`qgo test`](#test)         | Run the test suite with TAP/formatted output (pretty tests). |
-| [`qgo uninstall`](#uninstall) | Uninstall apps that were installed with `go install`. |
+| Basic Command                | Description                                                  |
+| ---------------------------- | :----------------------------------------------------------- |
+| [`qgo init`](#init)           | Initialize a new app (with templates).                       |
+| [`qgo run`](#run--build)      | Like `go run`, but reads configuration from JSON.          |
+| [`qgo build`](#run--build)    | Like `go build` but reads configuration from JSON.         |
+| [`qgo test`](#test)           | Run the test suite with TAP/formatted output (pretty tests). |
+| [`qgo uninstall`](#uninstall) | Uninstall apps that were installed with `go install`.      |
 
 By simplifying the development environment, Go developers derive the following benefits:
 
@@ -26,7 +27,7 @@ By simplifying the development environment, Go developers derive the following b
 **INSTALLATION**
 
 ```sh
-go install github.com/quikdev/go/cmd/qgo
+go install github.com/quikdev/go/cmd/qgo@latest
 ```
 
 _Alternatively, download the latest binary release and add it to your `PATH`._
