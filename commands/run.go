@@ -11,8 +11,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/quikdev/go/v1/context"
-	"github.com/quikdev/go/v1/util"
+	"github.com/quikdev/go/context"
+	"github.com/quikdev/go/util"
 
 	fs "github.com/coreybutler/go-fsutil"
 )

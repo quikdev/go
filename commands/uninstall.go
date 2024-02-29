@@ -11,7 +11,7 @@ import (
 
 	"github.com/charmbracelet/huh"
 	fs "github.com/coreybutler/go-fsutil"
-	"github.com/quikdev/go/v1/util"
+	"github.com/quikdev/go/util"
 )
 
 type Uninstall struct {

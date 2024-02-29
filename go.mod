@@ -1,4 +1,4 @@
-module github.com/quikdev/go/v1
+module github.com/quikdev/go
 
 go 1.21
 

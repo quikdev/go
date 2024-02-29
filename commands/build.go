@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/quikdev/go/v1/context"
-	"github.com/quikdev/go/v1/util"
+	"github.com/quikdev/go/context"
+	"github.com/quikdev/go/util"
 
 	goupx "github.com/alegrey91/go-upx"
 	fs "github.com/coreybutler/go-fsutil"

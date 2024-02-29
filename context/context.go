@@ -11,9 +11,9 @@ import (
 	"time"
 
 	fs "github.com/coreybutler/go-fsutil"
-	"github.com/quikdev/go/v1/command"
-	"github.com/quikdev/go/v1/config"
-	"github.com/quikdev/go/v1/util"
+	"github.com/quikdev/go/command"
+	"github.com/quikdev/go/config"
+	"github.com/quikdev/go/util"
 )
 
 type Context struct {

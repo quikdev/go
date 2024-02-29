@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/quikdev/go/v1/commands"
-	"github.com/quikdev/go/v1/util"
+	"github.com/quikdev/go/commands"
+	"github.com/quikdev/go/util"
 
 	"github.com/alecthomas/kong"
 )
