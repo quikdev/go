@@ -3,7 +3,7 @@
 QuikGo expands upon the Go toolchain, providing a simple and consistent developer experience across projects.
 
 QuikGo adds:
-- [support for a `manifest.json`/`package.json` file](#automation), allowing commands like `build` and `run` to provide more complex configurations (ex: automatic `go mod tidy`, ldflags/variable substitution, minification, etc) without a complex command.
+- [`manifest.json`/`package.json` files](#automation). Commands like `build` and `run` provide more complex configurations (ex: automatic `go mod tidy`, ldflags/variable substitution, minification, etc) without a complex command.
 - New project initialization with working code (modules/packages, apps/commands, WASM).
 - Integrated support for UPX, TinyGo, and other utilities.
 
