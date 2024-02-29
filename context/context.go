@@ -456,6 +456,24 @@ func (ctx *Context) RunCommand(colorized ...bool) *command.Command {
 			cmd.Add("&&")
 		}
 		cmd.Add(out)
+
+		// append arguments supplied by the user
+		// ignore the build file or the `--` separator if it exists.
+		args := os.Args[2:]
+		if len(args) > 0 {
+			index := util.IndexOf[string](args, "--")
+			if index >= 0 {
+				args = args[index+1:]
+			} else if len(args) > 0 {
+				if filepath.Ext(args[0]) == ".go" {
+					args = args[1:]
+				}
+			}
+		}
+
+		if len(args) > 0 {
+			cmd.Add(args...)
+		}
 	}
 
 	return cmd

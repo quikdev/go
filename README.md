@@ -148,7 +148,8 @@ Usage: qgo build [<file>]
 Build the Go application
 
 Arguments:
-  [<file>]    Go source file (ex: main.go)
+  [<file>]        Go source file (ex: main.go)
+  [<args> ...]    Arguments to pass to the executable.
 
 Flags:
   -h, --help                 Show context-sensitive help.

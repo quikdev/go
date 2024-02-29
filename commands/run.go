@@ -31,6 +31,7 @@ type Run struct {
 	Port        int      `name:"port" short:"p" help:"The port to run the HTTP server on (WASM only)."`
 	IgnoreCache bool     `name:"no-cache" type:"bool" help:"Ignore the cache and rebuild, even if no Go files have changed."`
 	File        string   `arg:"source" optional:"" help:"Go source file (ex: main.go)"`
+	Args        []string `arg:"" optional:"" help:"Arguments to pass to the executable."`
 	// Container string `name:"container" default:"docker" type:"string" enum:"docker,podman" help:"The containerization technology to build with"`
 }
 

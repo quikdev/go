@@ -32,6 +32,16 @@ func RemoveArgAt(index int) error {
 	return nil
 }
 
+// IndexOf returns the position of the specified item
+func IndexOf[V comparable](slice []V, target V) int {
+	for i, v := range slice {
+		if v == target {
+			return i
+		}
+	}
+	return -1
+}
+
 // InSlice determines whether a value is in the slice.
 // Uses generics to specify type.
 func InSlice[V comparable](item V, slice []V) bool {
