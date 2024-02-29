@@ -19,7 +19,7 @@ import (
 
 type Run struct {
 	Bundle      []string `name:"bundle" short:"b" type:"string" help:"Bundle the application into a tarball/zipball" enum:"zip,tar"`
-	OS          []string `name:"os" type:"string" help:"The operating system(s) to build for (any options from 'go tool dist list' is valid)"`
+	OS          []string `name:"os" type:"string" help:"The operating system(s) to build for (any option(s) from 'go tool dist list' is valid)"`
 	WASM        bool     `name:"wasm" type:"bool" help:"Output a web assembly (OS is ignored when this option is true)"`
 	Output      string   `name:"output" short:"o" type:"string" help:"Output file name"`
 	Tips        bool     `name:"tips" short:"t" type:"bool" help:"Display tips in the generated commands"`

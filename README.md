@@ -42,7 +42,7 @@ For example, consider the following `manifest.json` file:
   "name": "demo",                               // Ouput name
   "version": "1.0.0",                           // Version number
   "description": "A simple test app.",          // Description
-  "build": "main.go",                            // The source file to build
+  "build": "main.go",                           // The source file to build
 
   "variables": {                                // Build-time variables provided to the app
     "main.name": "manifest.name",               // Dynamic reference to package.name above
@@ -99,6 +99,8 @@ By leveraging a `package.json`/`manifest.json` file, these parameters can be com
 
 Consider the standard `go run myapp.go` command. This produces a temporary executable with a unique filename before running the temporary executable. Windows Defender and other antivirus suites can block these temporary files, throwing `Access denied.` errors (often sporadically). Exceptions can be made to allow-list executables in these tools, but they expect the executable to have a consistent name. As a result, it is easier to run `go build myapp.go && myapp.exe` so `myapp.exe` can be allow-listed with the antivirus suite. This is not intuitive or easy to remember when you're used to just running `go run myapp.go`. Plus, it's annoying to take time specifically to allow-list a particular executable. Most developers bypass this by allowing all executables, which defeats the purpose of these protections.
 
+QuikGo automates this process, guaranteeing the same file name is used for each build while maintaining the simplicity of `go run`.
+
 **_For Windows Users_**
 
 Typically, Windows will grant access after denying if the same file is explicitly run a few times. There are scenarios where you may need to exclude it from Windows Defender though.
@@ -118,7 +120,7 @@ Alternatively, use the GUI:
 
 #### Versioning
 
-Next, consider `go build -ldflags "-X 'main.version=1.0.0'" myapp.go && myapp.exe`. Dynamically specifying a version number (as opposed to hard-coding) is a common development need, which is easily solved using ldflags. This isn't something you want to type over and over though. Automating this delegates the versioning logic to the manifest file, so you only need to run `qgo build` instead of this big command.
+Consider `go build -ldflags "-X 'main.version=1.0.0'" myapp.go && myapp.exe`. Dynamically specifying a version number (as opposed to hard-coding) is a common development need, which is easily solved using ldflags. This isn't something you want to type over and over though. Automating this delegates the versioning logic to the manifest file, so you only need to run `qgo build` instead of this big command.
 
 # Commands
 
