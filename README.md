@@ -309,7 +309,7 @@ Run a script from the manifest/package
 
 Arguments:
   <script>        Name of the script to execute
-  [<args> ...]    additional arguments to pass to the script
+  [<args> ...]    Additional arguments to pass to the script
 
 Flags:
   -h, --help       Show context-sensitive help.

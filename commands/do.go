@@ -10,7 +10,7 @@ import (
 
 type Do struct {
 	Script string   `arg:"script" help:"Name of the script to execute"`
-	Args   []string `arg:"arguments" optional:"" help:"additional arguments to pass to the script"`
+	Args   []string `arg:"arguments" optional:"" help:"Additional arguments to pass to the script"`
 }
 
 func (d *Do) Run(c *Context) error {
