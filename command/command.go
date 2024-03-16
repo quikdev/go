@@ -46,7 +46,6 @@ func (cmd *Command) Display(help ...bool) string {
 
 func (cmd *Command) Run(cwd ...string) {
 	commands := split(cmd.str, "&&")
-
 	cfg := config.New()
 	vars := cfg.GetEnvVarList()
 
@@ -103,12 +102,15 @@ func (cmd *Command) Run(cwd ...string) {
 		exit := false
 		stream := func(pipe io.Reader, streamType string) {
 			defer wg.Done()
+			size := 0
 			scanner := bufio.NewScanner(pipe)
 			for scanner.Scan() {
-				fmt.Println(scanner.Text())
+				txt := scanner.Text()
+				fmt.Println(txt)
+				size += len(txt)
 			}
 
-			if streamType == "stderr" {
+			if streamType == "stderr" && size > 0 {
 				exit = true
 			}
 		}
