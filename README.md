@@ -302,6 +302,20 @@ These settings can be configured in the `package.json`/`manifest.json` files und
 
 ## Exec
 
+```sh
+Usage: QuikGo exec <script> [<args> ...]
+
+Run a script from the manifest/package
+
+Arguments:
+  <script>        Name of the script to execute
+  [<args> ...]    additional arguments to pass to the script
+
+Flags:
+  -h, --help       Show context-sensitive help.
+  -v, --version    Display the QuikGo version.
+```
+
 The `exec` command runs the script/command found in the manifet/package `script` attribute. For example:
 
 ```js
