@@ -314,7 +314,7 @@ The `exec` command runs the script/command found in the manifet/package `script`
 }
 ```
 
-Running `qgo exec test|:json` would execute `qgo test -f json`.
+Running `qgo exec test:json` would execute `qgo test -f json`.
 
 ## Uninstall
 
