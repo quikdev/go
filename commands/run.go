@@ -81,9 +81,18 @@ func (b *Run) Run(c *Context) error {
 	if !b.DryRun {
 		if ctx.Tidy {
 			if !ctx.Cached {
-				util.BailOnError(util.Run("go mod tidy"))
+				util.BailOnError(util.Stream("go mod tidy"))
 				fmt.Println("")
 			}
+		}
+
+		vars := ctx.GetConfig().GetEnvVars()
+		if len(vars) > 0 {
+			util.Stdout(`# autoapplying the following environment variables`)
+			for key, value := range vars {
+				util.Stdout("  " + strings.Replace(util.SubtleHighlighter(key), "\n", "", 1) + util.Dim("=") + strings.ReplaceAll(util.Highlighter(value), "\n", ""))
+			}
+			fmt.Println("")
 		}
 	}
 

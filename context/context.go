@@ -83,6 +83,10 @@ func New() *Context {
 	}
 }
 
+func (ctx *Context) GetConfig() *config.Config {
+	return ctx.config
+}
+
 func (ctx *Context) InputFile() string {
 	file, err := findMainGoFile(ctx.CWD)
 	if err != nil {
@@ -127,6 +131,8 @@ func (ctx *Context) OutputFile() string {
 			}
 		}
 	}
+
+	name = name[:len(name)-len(filepath.Ext(name))]
 
 	if runtime.GOOS == "windows" && !ctx.WASM {
 		name += ".exe"
@@ -176,6 +182,15 @@ func (ctx *Context) Configure() {
 				ctx.AddLinkedVariable(key, value.(string))
 			}
 		}
+	}
+
+	// Configured output
+	// ctx.OutputPath = "./bin"
+	if output, exists := ctx.config.Get("output"); exists {
+		ctx.OutputPath = fs.Abs(output.(string))
+	}
+	if output, exists := ctx.config.Get("bin"); exists {
+		ctx.OutputPath = fs.Abs(output.(string))
 	}
 
 	// Configured tags

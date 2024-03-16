@@ -411,8 +411,8 @@ func (i *Init) Run(c *Context) error {
 		// generate main file
 		source, _ = assetsFS.ReadFile("assets/main.go.tpl")
 		content = util.ApplyTemplate(source, map[string]string{})
-		os.MkdirAll(filepath.Join(abspath, "cmd", appname), os.ModePerm)
-		util.WriteTextFile(filepath.Join(abspath, "cmd", appname, "main.go"), content, true)
+		os.MkdirAll(filepath.Join(abspath, "cmd"), os.ModePerm)
+		util.WriteTextFile(filepath.Join(abspath, "cmd", "main.go"), content, true)
 
 		// // generate main test file
 		// source, _ = assetsFS.ReadFile("assets/main_test.go.tpl")
@@ -505,7 +505,7 @@ func (i *Init) Run(c *Context) error {
 	}
 	mainfile := strings.ToLower(appname) + ".go"
 	if createtype == "command" {
-		mainfile = "main.go"
+		mainfile = "cmd/main.go"
 	}
 	wasm := "false"
 	if createtype == "wasm" {

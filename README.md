@@ -16,6 +16,7 @@ Developers only need to remember a few basic commands:
 | [`qgo run`](#run--build)      | Like `go run`, but reads configuration from JSON.          |
 | [`qgo build`](#run--build)    | Like `go build` but reads configuration from JSON.         |
 | [`qgo test`](#test)           | Run the test suite with TAP/formatted output (pretty tests). |
+| [`qgo exec`](#exec) | Run local scripts found in the manifest/package.|
 | [`qgo uninstall`](#uninstall) | Uninstall apps that were installed with `go install`.      |
 
 By simplifying the development environment, Go developers derive the following benefits:
@@ -299,6 +300,22 @@ These settings can be configured in the `package.json`/`manifest.json` files und
 }
 ```
 
+## Exec
+
+The `exec` command runs the script/command found in the manifet/package `script` attribute. For example:
+
+```js
+{
+  "scripts": {
+    "test:go": "qgo test -f go",
+    "test:tap": "qgo test -f tap",
+    "test:json": "qgo test -f json"
+  }
+}
+```
+
+Running `qgo exec test|:json` would execute `qgo test -f json`.
+
 ## Uninstall
 
 The `qgo uninstall` command is a convenience utility for "uninstalling" applications that were installed using `go install` (i.e. like QuikGo itself).
@@ -322,6 +339,7 @@ For programmatic use, pass the `--no-warn` flag if you want to skip the warning/
   "a": true,                                // Force rebuilding of packages that are already up-to-date
   "asan": true,                             // Enable interoperation with address sanitizer
   "author": "John Doe",                     // Author
+  "bin": "output directory",                // Alias for "output" (i.e. where binaries are generated)
   "build": "main.go",                       // File to build
   "buildmode": "mode",                      // Build mode to use
   "buildvcs": true,                         // Whether to stamp binaries with version control information
@@ -331,6 +349,10 @@ For programmatic use, pass the `--no-warn` flag if you want to skip the warning/
   "covermode": "set",                       // Set the mode for coverage analysis
   "cwd": "/path/to/project",                // Current working directory
   "description": "my example app",          // Description
+  "env": {                                  // Environment variables
+    "variable": "value",                    // Variable/value
+    "variable2": "package.attr"             // Variable/self-referencing value
+  },
   "license": "MIT",                         // SPDX ID or Custom
   "minify": true,                           // Strip debugging symbols from generated executables
   "mod": "mode",                            // Module download mode to use
@@ -341,12 +363,13 @@ For programmatic use, pass the `--no-warn` flag if you want to skip the warning/
   "name": "myapp",                          // Project name
   "no-cache": false,                        // Set to true to forcibly rebuild/ignore the cache.
   "overlay": "file",                        // Read a JSON config file that provides an overlay for build operations
-  "package.variable": "manifest.name",      // Self referencing value
-  "package.variable2": "env.VARIABLE",      // Environment variable
-  "package.variable3": "some value",        // Hard coded value
+  "output": "output directory",             // Directory where binaries are output
   "p": 1,                                   // The number of programs that can be run in parallel
   "pgo": "file",                            // Specify the file path of a profile for profile-guided optimization
   "port": 8000,                             // Port to run WASM test server on
+  "scripts": {                              // Collection of scripts to run with qgo exec
+    "alias": "<command>"                    // Alias and command
+  },
   "shrink": false,                          // Strip debugging symbols when using GCC
   "tags": ["tag_a", "tag_b"],               // Build tags
   "test": {

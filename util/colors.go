@@ -63,11 +63,24 @@ func HighlightCommand(cmd string, args ...string) {
 }
 
 func Highlight(text ...string) {
+	fmt.Println(Highlighter(text...))
+}
+
+func Highlighter(text ...string) string {
 	c := color.New(color.FgYellow, color.Bold).SprintFunc()
-	fmt.Println(c(strings.Join(text, " ")))
+	return fmt.Sprintln(c(strings.Join(text, " ")))
 }
 
 func SubtleHighlight(text ...string) {
+	fmt.Println(SubtleHighlighter(text...))
+}
+
+func SubtleHighlighter(text ...string) string {
 	c := color.New(color.FgYellow, color.Faint).SprintFunc()
-	fmt.Println(c(strings.Join(text, " ")))
+	return fmt.Sprintln(c(strings.Join(text, " ")))
+}
+
+func Dim(text ...string) string {
+	c := color.New(color.Faint).SprintFunc()
+	return c(strings.Join(text, " "))
 }

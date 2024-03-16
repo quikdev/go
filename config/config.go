@@ -14,6 +14,9 @@ type Config struct {
 	cfgfile string
 }
 
+var jsonfiles = []string{"manifest", "package"}
+var warned = false
+
 func New() *Config {
 	cfgfile := "manifest.json"
 	data, err := readJSON(cfgfile)
@@ -42,10 +45,13 @@ func readJSON(file string) (map[string]interface{}, error) {
 			return data, err
 		}
 
-		magenta := color.New(color.FgMagenta, color.Faint).SprintFunc()
-		dim := color.New(color.Faint).SprintFunc()
-		fmt.Printf(dim("\n# using "+magenta("%s")+dim(" configuration\n")), file)
-		fmt.Println("")
+		if !warned {
+			magenta := color.New(color.FgMagenta, color.Faint).SprintFunc()
+			dim := color.New(color.Faint).SprintFunc()
+			fmt.Printf(dim("\n# using "+magenta("%s")+dim(" configuration\n")), file)
+			fmt.Println("")
+			warned = true
+		}
 	}
 
 	return data, nil
@@ -80,4 +86,39 @@ func (cfg *Config) Get(name string) (interface{}, bool) {
 
 func (cfg *Config) Data() map[string]interface{} {
 	return cfg.data
+}
+
+func (cfg *Config) GetEnvVars() map[string]string {
+	if cfg.data == nil {
+		data, _ := readJSON(cfg.cfgfile)
+		cfg.data = data
+	}
+
+	result := make(map[string]string)
+
+	if env, exists := cfg.Get("env"); exists {
+		for key, value := range env.(map[string]interface{}) {
+			for _, prefix := range jsonfiles {
+				if strings.HasPrefix(key, prefix+".") {
+					if subkey, keyexists := cfg.Get(strings.Replace(key, prefix+".", "", 1)); keyexists {
+						value = subkey
+						break
+					}
+				}
+			}
+
+			result[key] = value.(string)
+		}
+	}
+
+	return result
+}
+
+func (cfg *Config) GetEnvVarList() []string {
+	result := []string{}
+	for key, value := range cfg.GetEnvVars() {
+		result = append(result, fmt.Sprintf("%s=%s", key, value))
+	}
+
+	return result
 }

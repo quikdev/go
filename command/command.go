@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/quikdev/go/config"
 	"github.com/quikdev/go/util"
 )
 
@@ -43,33 +44,11 @@ func (cmd *Command) Display(help ...bool) string {
 	return colorize(cmd.String(), help...)
 }
 
-func split(main []string, delimiter string) [][]string {
-	var result [][]string
-	var smallerSlice []string
-
-	for _, item := range main {
-		if item == delimiter {
-			// Append the current smaller slice to the result if it's not empty
-			if len(smallerSlice) > 0 {
-				result = append(result, smallerSlice)
-				smallerSlice = nil
-			}
-		} else {
-			// Add the item to the current smaller slice
-			smallerSlice = append(smallerSlice, item)
-		}
-	}
-
-	// Append the last smaller slice to the result
-	if len(smallerSlice) > 0 {
-		result = append(result, smallerSlice)
-	}
-
-	return result
-}
-
 func (cmd *Command) Run(cwd ...string) {
 	commands := split(cmd.str, "&&")
+
+	cfg := config.New()
+	vars := cfg.GetEnvVarList()
 
 	for _, code := range commands {
 		args := make([]string, len(code))
@@ -89,6 +68,10 @@ func (cmd *Command) Run(cwd ...string) {
 		}
 
 		c := exec.Command(code[0], args[1:]...)
+
+		// Add manifest/package environment variables to command execution context
+		c.Env = append(os.Environ(), vars...)
+
 		curr, _ := os.Getwd()
 		if len(cwd) > 0 {
 			if cwd[0] != "./" && cwd[0] != curr {
@@ -117,20 +100,54 @@ func (cmd *Command) Run(cwd ...string) {
 		var wg sync.WaitGroup
 
 		// Function to read and print output from a pipe
-		stream := func(pipe io.Reader) {
+		exit := false
+		stream := func(pipe io.Reader, streamType string) {
 			defer wg.Done()
 			scanner := bufio.NewScanner(pipe)
 			for scanner.Scan() {
 				fmt.Println(scanner.Text())
 			}
+
+			if streamType == "stderr" {
+				exit = true
+			}
 		}
 
 		wg.Add(2)
-		go stream(stdout)
-		go stream(stderr)
+		go stream(stdout, "stdout")
+		go stream(stderr, "stderr")
 
 		// Wait for the command to finish
 		c.Wait()
 		wg.Wait()
+
+		if exit {
+			os.Exit(1)
+		}
 	}
+}
+
+func split(main []string, delimiter string) [][]string {
+	var result [][]string
+	var smallerSlice []string
+
+	for _, item := range main {
+		if item == delimiter {
+			// Append the current smaller slice to the result if it's not empty
+			if len(smallerSlice) > 0 {
+				result = append(result, smallerSlice)
+				smallerSlice = nil
+			}
+		} else {
+			// Add the item to the current smaller slice
+			smallerSlice = append(smallerSlice, item)
+		}
+	}
+
+	// Append the last smaller slice to the result
+	if len(smallerSlice) > 0 {
+		result = append(result, smallerSlice)
+	}
+
+	return result
 }

@@ -84,8 +84,6 @@ func (b *Build) Run(c *Context) error {
 		b.Tips = true
 	}
 
-	ctx.OutputPath = "./bin"
-
 	if !b.DryRun {
 		if ctx.Tidy {
 			if !ctx.Cached {
@@ -122,7 +120,7 @@ func (b *Build) Run(c *Context) error {
 			_, err := upx.Compress(ctx.Output(), 9, options)
 			util.BailOnError(err)
 			util.HighlightCommand("upx", upx.GetArgs()...)
-			util.Stdout(fmt.Sprintf("  ↳ Name: %v\n  ↳ Format: %v\n  ↳ Original: %v\n  ↳ Compressed: %v\n  ↳ Compression Ratio: %v\n", upx.CmdExecution.GetName(), upx.CmdExecution.GetFormat(), humanize.Bytes(upx.CmdExecution.GetOriginalFileSize()), humanize.Bytes(upx.CmdExecution.GetCompressedFileSize()), upx.CmdExecution.GetRatio()))
+			util.Stdout(fmt.Sprintf("  ↳ Name: %v\n  ↳ Format: %v\n  ↳ Original: %v\n  ↳ Compressed: %v\n  ↳ Ratio: %v%% of original\n", upx.CmdExecution.GetName(), upx.CmdExecution.GetFormat(), humanize.Bytes(upx.CmdExecution.GetOriginalFileSize()), humanize.Bytes(upx.CmdExecution.GetCompressedFileSize()), upx.CmdExecution.GetRatio()))
 		}
 	}
 

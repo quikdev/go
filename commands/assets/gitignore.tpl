@@ -9,5 +9,7 @@
 *.pkg
 *.deb
 *.rpm
+bin
+bin/*
 go.work
 {{ .Name }}
