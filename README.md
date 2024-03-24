@@ -379,7 +379,10 @@ For programmatic use, pass the `--no-warn` flag if you want to skip the warning/
     "variable2": "package.attr"             // Variable/self-referencing value
   },
   "license": "MIT",                         // SPDX ID or Custom
-  "livereload": ["**/*.go"],                // Monitored paths for live-reload (apps only). Supports glob syntax.
+  "livereload": [                           // Monitored paths for live-reload (apps only). Supports glob
+    "./*.go",
+    "./**/*.go"
+    ],syntax.
   "minify": true,                           // Strip debugging symbols from generated executables
   "mod": "mode",                            // Module download mode to use
   "modcacherw": true,                       // Leave newly-created directories in the module cache read-write instead of making them read-only
