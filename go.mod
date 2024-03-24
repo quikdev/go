@@ -9,6 +9,7 @@ require (
 	github.com/coreybutler/go-fsutil v1.2.1
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.16.0
+	github.com/fsnotify/fsnotify v1.7.0
 	github.com/logrusorgru/aurora/v3 v3.0.0
 	github.com/mpontillo/tap13 v1.0.2
 )

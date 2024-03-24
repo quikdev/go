@@ -46,6 +46,7 @@ func (cmd *Command) Display(help ...bool) string {
 
 func (cmd *Command) Run(cwd ...string) {
 	commands := split(cmd.str, "&&")
+
 	cfg := config.New()
 	vars := cfg.GetEnvVarList()
 

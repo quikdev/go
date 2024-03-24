@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 	"sync"
 )
@@ -46,6 +47,10 @@ func Output(cmd string, cwd ...string) ([]byte, error) {
 func streamcmd(raw bool, cmd string, cwd ...string) error {
 	Highlight(cmd)
 
+	return streamcmdnohighlight(raw, cmd, cwd...)
+}
+
+func streamcmdnohighlight(raw bool, cmd string, cwd ...string) error {
 	var wg sync.WaitGroup
 	var wd string
 	if len(cwd) > 0 {
@@ -58,6 +63,10 @@ func streamcmd(raw bool, cmd string, cwd ...string) error {
 		defer func() {
 			os.Chdir(wd)
 		}()
+	}
+
+	if runtime.GOOS == "windows" && !strings.HasPrefix(cmd, "cmd") {
+		cmd = "cmd /c " + cmd
 	}
 
 	parts := strings.Split(cmd, " ")
@@ -96,8 +105,16 @@ func Stream(cmd string, cwd ...string) error {
 	return streamcmd(false, cmd, cwd...)
 }
 
+func StreamNoHighlight(cmd string, cwd ...string) error {
+	return streamcmdnohighlight(false, cmd, cwd...)
+}
+
 func StreamRaw(cmd string, cwd ...string) error {
 	return streamcmd(true, cmd, cwd...)
+}
+
+func StreamRawNoHighlight(cmd string, cwd ...string) error {
+	return streamcmdnohighlight(true, cmd, cwd...)
 }
 
 func stream(raw bool, reader io.Reader, streamType string, wg *sync.WaitGroup, errMsg ...*string) {
@@ -117,6 +134,7 @@ func stream(raw bool, reader io.Reader, streamType string, wg *sync.WaitGroup, e
 
 		// Print the output to console
 		out := string(buf[:n])
+
 		if streamType == "stderr" {
 			if raw {
 				fmt.Printf("%v", out)

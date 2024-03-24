@@ -10,7 +10,9 @@ import (
 	"runtime"
 	"strings"
 	"sync"
+	"time"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/quikdev/go/context"
 	"github.com/quikdev/go/util"
 
@@ -78,11 +80,24 @@ func (b *Run) Run(c *Context) error {
 		b.Tips = true
 	}
 
+	// Display commands
+	hide := false
+	hideDisplay, err := c.Get("hide")
+	if err == nil {
+		if hideDisplay != nil {
+			hide = hideDisplay.(bool)
+		}
+	}
+
 	if !b.DryRun {
 		if ctx.Tidy {
 			if !ctx.Cached {
-				util.BailOnError(util.Stream("go mod tidy"))
-				fmt.Println("")
+				if hide {
+					util.BailOnError(util.StreamNoHighlight("go mod tidy"))
+				} else {
+					util.BailOnError(util.Stream("go mod tidy"))
+					fmt.Println("")
+				}
 			}
 		}
 
@@ -96,8 +111,9 @@ func (b *Run) Run(c *Context) error {
 		}
 	}
 
-	// Display command
-	fmt.Println(cmd.Display(b.Tips) + "\n")
+	if !hide {
+		fmt.Println(cmd.Display(b.Tips) + "\n")
+	}
 
 	parentdir := filepath.Dir(ctx.Output())
 	if !fs.Exists(parentdir) {
@@ -110,7 +126,89 @@ func (b *Run) Run(c *Context) error {
 			os.Setenv("GOWORK", "off")
 		}
 
+		subscribers := make(map[chan string]bool)
+		reload, livereloadexists := ctx.GetConfig().Get("livereload")
+		if !livereloadexists {
+			tmp := make([]interface{}, 2)
+			var iface interface{}
+			iface = "**/*.go"
+			tmp[0] = iface
+			iface = "*.go"
+			tmp[1] = iface
+			iface = tmp
+			reload = iface
+		}
+
+		// Placeholder to prevent duplicate event handling
+		ignoreEvents := false
+
+		for _, glob := range reload.([]interface{}) {
+			matches, err := filepath.Glob(glob.(string))
+			if err != nil {
+				util.Stderr(err)
+			} else {
+				for _, match := range matches {
+					watcher, err := fsnotify.NewWatcher()
+					if err != nil {
+						util.Stderr(err)
+					} else {
+						defer watcher.Close()
+
+						go func() {
+							for {
+								select {
+								case event, ok := <-watcher.Events:
+									if !ok {
+										return
+									}
+
+									if event.Has(fsnotify.Write) || event.Has(fsnotify.Remove) || event.Has(fsnotify.Rename) || event.Has(fsnotify.Create) {
+										if ctx.WASM {
+											if !ignoreEvents && event.Has(fsnotify.Write) {
+												go func() {
+													ignoreEvents = true
+													ctx.IgnoreCache = true
+													cmd = ctx.BuildCommand()
+													fmt.Println(cmd.Display())
+													cmd.Run(ctx.CWD)
+													// fmt.Println("execution complete")
+													time.Sleep(500 * time.Millisecond)
+													for subscriber := range subscribers {
+														subscriber <- "reload"
+													}
+													time.Sleep(3 * time.Second)
+													ignoreEvents = false
+												}()
+											}
+										} else {
+											watcher.Close()
+
+											c.Set("hide", true)
+											util.SubtleHighlight("rebuilding/running " + ctx.OutputFile())
+											b.Run(c)
+										}
+									}
+								case err, ok := <-watcher.Errors:
+									if !ok {
+										return
+									}
+									util.Stderr(err, true)
+								}
+							}
+						}()
+
+						err := watcher.Add(match)
+						if err != nil {
+							util.Stderr(err)
+						}
+					}
+				}
+			}
+		}
+
 		if ctx.WASM {
+			cmd.Run(ctx.CWD)
+
 			root := filepath.Dir(ctx.Output())
 
 			port := b.Port
@@ -129,6 +227,33 @@ func (b *Run) Run(c *Context) error {
 
 			server := http.FileServer(http.Dir(root))
 
+			http.HandleFunc("/livereload", func(w http.ResponseWriter, r *http.Request) {
+				util.SubtleHighlight(r.Header.Get("User-Agent") + " connected")
+				w.Header().Set("Access-Control-Allow-Origin", "*")
+				w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+				w.Header().Set("Content-Type", "text/event-stream")
+				w.Header().Set("Cache-Control", "no-cache")
+				w.Header().Set("Connection", "keep-alive")
+
+				clientChan := make(chan string)
+				subscribers[clientChan] = true
+				defer func() { delete(subscribers, clientChan) }()
+				defer r.Body.Close()
+
+				for {
+					select {
+					case event := <-clientChan:
+						// fmt.Println(`sent: ` + event)
+						w.Write([]byte("data: " + event + "\n\n"))
+						w.(http.Flusher).Flush()
+					case <-r.Context().Done():
+						delete(subscribers, clientChan)
+						util.Stdout("\n" + r.UserAgent() + " disconnected")
+						return
+					}
+				}
+			})
+
 			http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 				if r.URL.Path == "/" {
 					http.ServeFile(w, r, filepath.Join(root, "index.html"))
@@ -140,6 +265,7 @@ func (b *Run) Run(c *Context) error {
 
 			url := fmt.Sprintf("http://localhost:%d", port)
 
+			// Launch test server
 			go func() {
 				defer wg.Done()
 				fmt.Println("")
@@ -148,23 +274,23 @@ func (b *Run) Run(c *Context) error {
 				util.BailOnError(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 			}()
 
-			var cmd string
-			switch runtime.GOOS {
-			case "windows":
-				cmd = "cmd"
-				args := []string{"/c", "start", url}
-				exec.Command(cmd, args...).Start()
-			case "darwin":
-				cmd = "open"
-				exec.Command(cmd, url).Start()
-			default:
-				cmd = "xdg-open"
-				exec.Command(cmd, url).Start()
+			// Optionally open browser
+			autobrowse := true
+			if value, exists := ctx.GetConfig().Get("autobrowse"); exists {
+				autobrowse = value.(bool)
+			}
+
+			if autobrowse {
+				go openbrowser(url)
 			}
 
 			wg.Wait()
 		} else {
 			cmd.Run(ctx.CWD)
+
+			// Forcibly exit the process when the command finishes
+			// (so the reload mechanism will close)
+			os.Exit(0)
 		}
 	}
 
@@ -181,4 +307,20 @@ func findOpenPort(start, end int) (int, error) {
 		}
 	}
 	return 0, fmt.Errorf("no open port found in range %d-%d", start, end)
+}
+
+func openbrowser(url string) {
+	var cmd string
+	switch runtime.GOOS {
+	case "windows":
+		cmd = "cmd"
+		args := []string{"/c", "start", url}
+		exec.Command(cmd, args...).Start()
+	case "darwin":
+		cmd = "open"
+		exec.Command(cmd, url).Start()
+	default:
+		cmd = "xdg-open"
+		exec.Command(cmd, url).Start()
+	}
 }

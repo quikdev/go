@@ -28,7 +28,7 @@ func (d *Do) Run(c *Context) error {
 			// command = append(command, "--")
 			command = append(command, d.Args...)
 		}
-		util.StreamRaw(strings.Join(command, " "))
+		util.StreamRawNoHighlight(strings.Join(command, " "))
 	} else {
 		util.Stderr(fmt.Sprintf(`"%s" script does not exist or cannot be found`, d.Script))
 	}
