@@ -183,8 +183,9 @@ func (b *Run) Run(c *Context) error {
 										} else {
 											watcher.Close()
 
-											c.Set("hide", true)
+											// c.Set("hide", true)
 											util.SubtleHighlight("rebuilding/running " + ctx.OutputFile())
+											// fmt.Printf("kill %v\n", cmd.PID())
 											b.Run(c)
 										}
 									}

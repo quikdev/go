@@ -17,6 +17,7 @@ import (
 type Command struct {
 	str   []string
 	color map[string][]int
+	pid   int
 }
 
 func New() *Command {
@@ -42,6 +43,18 @@ func (cmd *Command) String(includeApp ...bool) string {
 
 func (cmd *Command) Display(help ...bool) string {
 	return colorize(cmd.String(), help...)
+}
+
+func (cmd *Command) Kill() error {
+	process, err := os.FindProcess(cmd.pid)
+	if err != nil {
+		return err
+	}
+	return process.Kill()
+}
+
+func (cmd *Command) PID() int {
+	return cmd.pid
 }
 
 func (cmd *Command) Run(cwd ...string) {
@@ -96,6 +109,8 @@ func (cmd *Command) Run(cwd ...string) {
 			fmt.Printf("Error starting command: %v\n", err)
 			return
 		}
+
+		cmd.pid = c.Process.Pid
 
 		var wg sync.WaitGroup
 

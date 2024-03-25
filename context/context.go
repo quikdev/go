@@ -30,6 +30,7 @@ type Context struct {
 	ExtLD               string            `json:"extld,omitempty"`
 	Shared              bool              `json:"shared"`
 	ExtLDFlags          []string          `json:"extldflags,omitempty"`
+	LDFlags             []string          `json:"ldflags,omitempty"`
 	TempDir             string            `json:"tmp_dir,omitempty"`
 	Tags                []string          `json:"tags,omitempty"`
 	InstallDependencies bool              `json:"install_dependencies,omitempty"`
@@ -304,6 +305,18 @@ func (ctx *Context) Configure() {
 	if nocache, exists := ctx.config.Get("no-cache"); exists {
 		ctx.IgnoreCache = nocache.(bool)
 	}
+
+	if ldflags, exists := ctx.config.Get("ldflags"); exists {
+		ldfs := ldflags.([]interface{})
+		if len(ldfs) > 0 {
+			ldf := []string{}
+			for _, ldflag := range ldfs {
+				ldf = append(ldf, ldflag.(string))
+			}
+
+			ctx.LDFlags = ldf
+		}
+	}
 }
 
 func (ctx *Context) isOutdated(bin string) bool {
@@ -410,7 +423,10 @@ func (ctx *Context) BuildCommand(colorized ...bool) *command.Command {
 		ctx.AddLinkedFlag("-tmpdir " + ctx.TempDir)
 	}
 
-	ldflags := []string{}
+	ldflags := ctx.LDFlags
+	if ctx.LDFlags == nil {
+		ldflags = []string{}
+	}
 	if len(ctx.Variables) > 0 {
 		for _, flag := range ctx.Variables {
 			ldflags = append(ldflags, flag)
