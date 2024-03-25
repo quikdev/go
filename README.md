@@ -378,6 +378,9 @@ For programmatic use, pass the `--no-warn` flag if you want to skip the warning/
     "variable": "value",                    // Variable/value
     "variable2": "package.attr"             // Variable/self-referencing value
   },
+  "ldflags": [				    // Additional LDFlags
+    "-H windowsgui"			    // example LDFlag
+  ],
   "license": "MIT",                         // SPDX ID or Custom
   "livereload": [                           // Monitored paths for live-reload (apps only). Supports glob
     "./*.go",
