@@ -17,7 +17,7 @@ Developers only need to remember a few basic commands:
 | [`qgo run`](#run--build)      | Like `go run`, but reads configuration from JSON.          |
 | [`qgo build`](#run--build)    | Like `go build` but reads configuration from JSON.         |
 | [`qgo test`](#test)           | Run the test suite with TAP/formatted output (pretty tests). |
-| [`qgo bump`](#init)           | Bump the version number.
+| [`qgo bump`](#bump)           | Bump the version number.
 | [`qgo todo`](#todo)           | Output all the TODO items in the code base.                  |
 | [`qgo exec`](#exec)           | Run local scripts found in the manifest.                     |
 | [`qgo uninstall`](#uninstall) | Uninstall apps that were installed with `go install`.      |
