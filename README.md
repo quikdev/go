@@ -83,10 +83,9 @@ go build \
      -w \
      -s \
    " \
-   -tags " \
+   -tags \
       a-tag, \
       b-tag \
-   " \
    -o .\bin\demo.exe \
    main.go \
 && .\bin\demo.exe
@@ -194,10 +193,9 @@ go build \
      -X 'main.description=A simple test app.' \
      -X 'main.buildTime=2023-10-05T23:35:27Z' \
    " \
-   -tags " \
+   -tags \
       a-tag, \
       b-tag \
-   " \
    -o .\bin\demo.exe \
    main.go \
 && .\bin\demo.exe // this line only exists for `qgo run`
