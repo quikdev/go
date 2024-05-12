@@ -17,6 +17,7 @@ Developers only need to remember a few basic commands:
 | [`qgo run`](#run--build)      | Like `go run`, but reads configuration from JSON.          |
 | [`qgo build`](#run--build)    | Like `go build` but reads configuration from JSON.         |
 | [`qgo test`](#test)           | Run the test suite with TAP/formatted output (pretty tests). |
+| [`qgo bump`](#init)           | Bump the version number.
 | [`qgo todo`](#todo)           | Output all the TODO items in the code base.                  |
 | [`qgo exec`](#exec)           | Run local scripts found in the manifest.                     |
 | [`qgo uninstall`](#uninstall) | Uninstall apps that were installed with `go install`.      |
@@ -311,6 +312,25 @@ These settings can be configured in the `manifest.json` files under the `test` a
   }
 }
 ```
+
+## Bump
+
+Bump the version number in the `manifest.json` file.
+
+```sh
+Usage: QuikGo bump [<type>]
+
+Bump the semantic version number in the manifest
+
+Arguments:
+  [<type>]    major, minor, patch (default), prerelease, or build
+
+Flags:
+  -h, --help       Show context-sensitive help.
+  -v, --version    Display the QuikGo version.
+```
+
+For example, if manifest.json has a `"version": "1.0.0"`, running `qgo bump` will update the value to `"version": "1.0.1"`. Running `qgo bump minor` will update the value to `"version": "1.1.0"`. Running `qgo bump major` will update the value to `"version": "2.0.0"`. At this time, `prerelease` and `build` are not supported.
 
 ## Todo
 
