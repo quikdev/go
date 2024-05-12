@@ -10,7 +10,7 @@ import (
 
 func Stdout(txt string, exit ...bool) {
 	stdout := color.New(color.Faint).SprintFunc()
-	fmt.Println(stdout(txt))
+	fmt.Printf("%v", stdout(txt))
 
 	if len(exit) > 0 {
 		if exit[0] {
@@ -23,9 +23,9 @@ func Stderr(msg interface{}, exit ...bool) {
 	stderr := color.New(color.FgRed).SprintFunc()
 
 	if _, ok := msg.(error); ok {
-		fmt.Println(stderr(msg.(error).Error()))
+		fmt.Printf("%v", stderr(msg.(error).Error()))
 	} else {
-		fmt.Println(stderr(msg.(string)))
+		fmt.Printf("%v", stderr(msg.(string)))
 	}
 
 	if len(exit) > 0 {

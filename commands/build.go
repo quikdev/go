@@ -87,7 +87,8 @@ func (b *Build) Run(c *Context) error {
 	if !b.DryRun {
 		if ctx.Tidy {
 			if !ctx.Cached {
-				util.BailOnError(util.Run("go mod tidy"))
+				util.BailOnError(util.StreamNoStdErr("go mod tidy"))
+				// util.Run("go mod tidy"))
 				fmt.Println("")
 			}
 		}
@@ -105,6 +106,15 @@ func (b *Build) Run(c *Context) error {
 	if !b.DryRun {
 		if b.NoWork {
 			os.Setenv("GOWORK", "off")
+		}
+
+		if ctx.BuildFast {
+			current := os.Getenv("GOGC")
+			if len(current) == 0 {
+				current = "2000"
+			}
+
+			os.Setenv("GOGC", current)
 		}
 
 		cmd.Run(ctx.CWD)

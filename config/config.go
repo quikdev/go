@@ -14,20 +14,15 @@ type Config struct {
 	cfgfile string
 }
 
-var jsonfiles = []string{"manifest", "package"}
+var jsonfiles = []string{"manifest"}
 var warned = false
 
 func New() *Config {
 	cfgfile := "manifest.json"
 	data, err := readJSON(cfgfile)
 	if err != nil {
-		cfgfile = "package.json"
-		data, err = readJSON(cfgfile)
-		if err != nil {
-			var empty string
-			cfgfile = empty
-			// fmt.Println(err)
-		}
+		var empty string
+		cfgfile = empty
 	}
 
 	return &Config{data: data, cfgfile: cfgfile}
@@ -86,6 +81,14 @@ func (cfg *Config) Get(name string) (interface{}, bool) {
 
 func (cfg *Config) Data() map[string]interface{} {
 	return cfg.data
+}
+
+func (cfg *Config) File() string {
+	return cfg.cfgfile
+}
+
+func (cfg *Config) Raw() ([]byte, error) {
+	return os.ReadFile(cfg.cfgfile)
 }
 
 func (cfg *Config) GetEnvVars() map[string]string {

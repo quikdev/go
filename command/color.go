@@ -44,7 +44,6 @@ func colorize(input string, displayhelp ...bool) string {
 
 	for i, part := range parts {
 		value := part
-
 		startsWithQuote := false
 		if part[0:1] == "\"" {
 			startsWithQuote = true
@@ -135,7 +134,8 @@ func colorize(input string, displayhelp ...bool) string {
 			if help {
 				result[i] += tip(" (additional build tags)")
 			}
-			result[i] += " " + magentaDim("\"") + dim(" \\\n    ")
+			result[i] += " " + dim(" \\\n    ")
+			// result[i] += " " + magentaDim("\"") + dim(" \\\n    ")
 		// -i is deprecated
 		case "-i":
 			active = "none"
@@ -182,7 +182,7 @@ func colorize(input string, displayhelp ...bool) string {
 					}
 
 					if startsWithQuote {
-						result[i] = dim(" \\") + "\n    " + result[i]
+						result[i] = yellowDimBold("\"") + dim(" \\") + "\n    " + result[i]
 					}
 
 					if help && part[0:1] == "-" {
@@ -316,12 +316,25 @@ func colorize(input string, displayhelp ...bool) string {
 					result[i] = blueBrightBold(value)
 					active = "none"
 				} else if active == "tags" {
-					result[i] = magentaBright(part) + dim(" \\\n   ")
-					if !endsWithQuote {
-						result[i] += " "
-					} else {
-						result[i] += magentaDim("\"") + dim(" \\\n  ")
+					tags := strings.Split(part, ",")
+					result[i] = "" //magentaBright(part) + dim(" \\\n   ")
+					for ti, tag := range tags {
+						comma := " "
+						if ti < (len(tags) - 1) {
+							comma = ","
+						}
+						result[i] += magentaBright(tag) + magentaDim(comma) + dim(" \\\n")
+						if ti < (len(tags) - 1) {
+							result[i] += "     "
+						}
 					}
+					// result[i] = magentaBright(part) + dim(" \\\n   ")
+					// if !endsWithQuote {
+					// 	result[i] += " "
+					// } else {
+					// 	result[i] += magentaDim("\"") + dim(" \\\n  ")
+					// }
+
 					// result[i] = magentaDim("\"") + dim(" \\\n      ")
 					// tags := strings.Split(part, " ")
 					// for ti, tag := range tags {

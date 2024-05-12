@@ -4,7 +4,7 @@ QuikGo expands upon the Go toolchain, providing a simple and consistent develope
 
 QuikGo adds:
 
-- [`manifest.json`/`package.json` files](#automation). Commands like `build` and `run` provide more complex configurations (ex: automatic `go mod tidy`, ldflags/variable substitution, minification, etc) without a complex command.
+- [`manifest.json` files](#automation). Commands like `build` and `run` provide more complex configurations (ex: automatic `go mod tidy`, ldflags/variable substitution, minification, etc) without a complex command.
 - New project initialization with working code (modules/packages, apps/commands, WASM).
 - Integrated support for UPX, TinyGo, and other utilities.
 - Live reload support for applications.
@@ -17,7 +17,8 @@ Developers only need to remember a few basic commands:
 | [`qgo run`](#run--build)      | Like `go run`, but reads configuration from JSON.          |
 | [`qgo build`](#run--build)    | Like `go build` but reads configuration from JSON.         |
 | [`qgo test`](#test)           | Run the test suite with TAP/formatted output (pretty tests). |
-| [`qgo exec`](#exec)           | Run local scripts found in the manifest/package.             |
+| [`qgo todo`](#todo)           | Output all the TODO items in the code base.                  |
+| [`qgo exec`](#exec)           | Run local scripts found in the manifest.                     |
 | [`qgo uninstall`](#uninstall) | Uninstall apps that were installed with `go install`.      |
 
 By simplifying the development environment, Go developers derive the following benefits:
@@ -36,7 +37,7 @@ _Alternatively, download the latest binary release and add it to your `PATH`._
 
 ### Automation
 
-`qgo` auto-constructs/runs commands using parameters found in a `manifest.json` (or `package.json`) file. This file exists in the same directory as your `go.mod` and `main.go`/`mymodule.go` files.
+`qgo` auto-constructs/runs commands using parameters found in a `manifest.json` file. This file exists in the same directory as your `go.mod` and `main.go`/`mymodule.go` files.
 
 For example, consider the following `manifest.json` file:
 
@@ -48,9 +49,9 @@ For example, consider the following `manifest.json` file:
   "build": "main.go",                           // The source file to build
 
   "variables": {                                // Build-time variables provided to the app
-    "main.name": "manifest.name",               // Dynamic reference to package.name above
-    "main.version": "manifest.version",         // Dynamic reference to the package.version above
-    "main.description": "manifest.description", // Dynamic reference to the package.description above
+    "main.name": "manifest.name",               // Dynamic reference to manifest.name above
+    "main.version": "manifest.version",         // Dynamic reference to the manifest.version above
+    "main.description": "manifest.description", // Dynamic reference to the manifest.description above
     "main.author": "env.USER"                   // Dynamic reference to the USER environment variable
   },
 
@@ -92,9 +93,9 @@ go build \
 
 This command will build an executable called `demo` (specified in the JSON `name` attribute) from the `main.go` source file (specified in the JSON `build` attribute). If the `build` attribute is not defined in the JSON, qgo attempts to find the file with the `main()` function.
 
-This example assumes several build variables exist in the main module (`description`, `name`, `version`, `buildTime`). The `buildTime` variable is always applied by `qgo` even though it is not in the `package.json` file. If your app does not use it, it is ignored. This command results in the execution of a binary built as though it were ready for distribution, simply by calling `qgo run`. Notice that some of the variable values in the `manifest.json` are `manifest.<attribute>`. These specify dynamically generated values found elsewhere in the package/manifest. The `package.` prefix is an alias for `manifest.` if you prefer to use `package.json` nomenclature. It is also possible to specify `env.<variable>` values, which will derive the attribute value from a local environment variable.
+This example assumes several build variables exist in the main module (`description`, `name`, `version`, `buildTime`). The `buildTime` variable is always applied by `qgo` even though it is not in the `manifest.json` file. If your app does not use it, it is ignored. This command results in the execution of a binary built as though it were ready for distribution, simply by calling `qgo run`. Notice that some of the variable values in the `manifest.json` are `manifest.<attribute>`. These specify dynamically generated values found elsewhere in the manifest. It is also possible to specify `env.<variable>` values, which will derive the attribute value from a local environment variable.
 
-By leveraging a `package.json`/`manifest.json` file, these parameters can be committed alongside Go source code, allowing a portable/standard experience for building/running Go apps.
+By leveraging a `manifest.json` file, these parameters can be committed alongside Go source code, allowing a portable/standard experience for building/running Go apps.
 
 ### Use Cases
 
@@ -232,7 +233,7 @@ This can be disabled by setting `"livereload": []` in the package/manifest, or i
 
 ### Compressing with UPX
 
-The `--compress` or `-c` flags can be passed to the build command to use [upx](https://upx.github.io/) (if installed) to reduce the file size of executables. Alternatively, configure `"compress": true` or `"upx": true` in the `manifest.json`/`package.json` file. The following screenshot was taken using `"compress": true` in the project's `manifest.json` file.
+The `--compress` or `-c` flags can be passed to the build command to use [upx](https://upx.github.io/) (if installed) to reduce the file size of executables. Alternatively, configure `"compress": true` or `"upx": true` in the `manifest.json` file. The following screenshot was taken using `"compress": true` in the project's `manifest.json` file.
 
 ![1708985377290](image/README/1708985377290.png)
 
@@ -244,7 +245,7 @@ By default, the standard Go toolchain is used to compile WASM files. The templat
 
 For users who are sensitive to the file size, [tinygo](https://tinygo.org/) offers an option that can dramatically reduce file sizes (~10kb). The code syntax is unique to tinygo. QuikGo does _not_ generate tinygo templates, but QuikGo does support using tinygo to build web assemblies. In other words, it's up to you to install tinygo and figure out the code, but QuikGo can still build it for you. Please note that at this time, QuikGo only adds `-target=wasm` (not wasi). We'd be open to a PR adding functionality to specify the wasi/wasm output format.
 
-There are two ways to use `tinygo`. First, supply the `--tiny` flag to the build process, i.e. `qgo build --tiny`. The other option is to add `"tiny": true` to the `mainfest.json`/`package.json`, then run `qo build`.
+There are two ways to use `tinygo`. First, supply the `--tiny` flag to the build process, i.e. `qgo build --tiny`. The other option is to add `"tiny": true` to the `mainfest.json`, then run `qo build`.
 
 ### Running Web Assemblies (WASM)
 
@@ -300,7 +301,7 @@ ok 6 some other test
 
 It is also possible to ignore the TAP conversion to leverage the standard go output format (`qgo test -f go`), or to specify JSON (`qgo test -f json`).
 
-These settings can be configured in the `package.json`/`manifest.json` files under the `test` attribute:
+These settings can be configured in the `manifest.json` files under the `test` attribute:
 
 ```js
 {
@@ -309,6 +310,71 @@ These settings can be configured in the `package.json`/`manifest.json` files und
     "debug": true|false                   // run tests with debugging turned on
   }
 }
+```
+
+## Todo
+
+The `todo` command is a convenience method that parses all of the `.go` files, identifying comments that start with `// TODO` (or some case insensitive variation). All items are output to the screen. It is also possible to save this to disk.
+
+```sh
+Usage: QuikGo todo
+
+List all of the todo items found in the code base.
+
+Flags:
+  -h, --help                    Show context-sensitive help.
+  -v, --version                 Display the QuikGo version.
+
+  -f, --format="text"           output in a specific format
+  -s, --save                    save output to disk
+  -o, --output="./todos.txt"    output file name/location
+```
+
+Valid formats include `json`, `markdown`/`md`, and `text` (default).
+
+Output looks like:
+
+_JSON_
+
+```js
+[
+  {
+    "Path": "cmd\\main.go",
+    "Line": 20,
+    "Comment": "Abstract this code to a function"
+  },
+  {
+    "Path": "cmd\\main.go",
+    "Line": 23,
+    "Comment": "Add notes about why this had to be written"
+  },
+  {
+    "Path": "cmd\\main.go",
+    "Line": 34,
+    "Comment": "Remove this when v3.0.0 is released"
+  }
+]
+```
+
+_Markdown_
+
+```
+[ ] Abstract this code to a function _at cmd\main.go:**20**_
+[ ] Add notes about why this had to be written _at cmd\main.go:**23**_
+[ ] Remove this when v3.0.0 is released _at cmd\main.go:**34**_
+```
+
+_Text_
+
+```
+Abstract this code to a function
+  at cmd\main.go:20
+
+Add notes about why this had to be written
+  at cmd\main.go:23
+
+Remove this when v3.0.0 is released
+  at cmd\main.go:34
 ```
 
 ## Exec
@@ -357,7 +423,7 @@ The uninstall process is very basic. It finds the file and deletes it (with a wa
 
 For programmatic use, pass the `--no-warn` flag if you want to skip the warning/prompt. For example, `qgo uninstall --no-warn myapp`.
 
-## Full List of Manifest/Package Options
+## Full List of Manifest Options
 
 ```js
 {
@@ -376,7 +442,7 @@ For programmatic use, pass the `--no-warn` flag if you want to skip the warning/
   "description": "my example app",          // Description
   "env": {                                  // Environment variables
     "variable": "value",                    // Variable/value
-    "variable2": "package.attr"             // Variable/self-referencing value
+    "variable2": "manifest.attr"             // Variable/self-referencing value
   },
   "ldflags": [				    // Additional LDFlags
     "-H windowsgui"			    // example LDFlag
@@ -415,9 +481,9 @@ For programmatic use, pass the `--no-warn` flag if you want to skip the warning/
   "update": true,                           // Run go mod tidy before build/run
   "upx": true,                              // Alias for compress
   "variables": {                            // LDFlag Variables
-    "package.variable": "manifest.name",    // Self referencing value
-    "package.variable2": "env.VARIABLE",    // Environment variable
-    "package.variable3": "some value"       // Hard coded value
+    "manifest.variable": "manifest.attribute",// Self referencing value
+    "manifest.variable2": "env.VARIABLE",    // Environment variable
+    "manifest.variable3": "some value"       // Hard coded value
   },
   "verbose": false,                         // Verbose output
   "wasm": true,                             // Indicates this is a web assembly project

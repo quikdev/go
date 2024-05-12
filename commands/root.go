@@ -8,6 +8,8 @@ var Root struct {
 	Run       Run              `cmd:"run" short:"r" help:"Run the Go application"`
 	Test      Test             `cmd:"test" short:"t" help:"Run unit tests"`
 	Uninstall Uninstall        `cmd:"uninstall" short:"u" help:"Uninstall a 'go install' app."`
-	Exec      Do               `cmd:"exec" short:"x" help:"Run a script from the manifest/package"`
+	Exec      Do               `cmd:"exec" short:"x" help:"Run a script from the manifest"`
+	Bump      Bump             `cmd:"bump" help:"Bump the semantic version number in the manifest"`
+	Todo      Todo             `cmd:"todo" help:"List all of the todo items found in the code base."`
 	Version   kong.VersionFlag `name:"version" short:"v" help:"Display the QuikGo version."`
 }

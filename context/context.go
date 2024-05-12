@@ -42,12 +42,13 @@ type Context struct {
 	Name                string            `json:"name"`
 	OutputPath          string            `json:"output_dir"`
 	OutputFileName      string            `json:"output_filename"`
-	Tidy                bool
+	Tidy                bool              `json:"auto_tidy"`
 	Port                int
-	Tiny                bool
-	UPX                 bool
+	Tiny                bool `json:"use_tinygo"`
+	UPX                 bool `json:"use_upx"`
 	IgnoreCache         bool
 	Cached              bool
+	BuildFast           bool `json:"build_fast"`
 }
 
 func New() *Context {
@@ -278,6 +279,11 @@ func (ctx *Context) Configure() {
 		ctx.WASM = wasm.(bool)
 	}
 
+	// Configure build optimizations
+	if buildfast, exists := ctx.config.Get("buildfast"); exists {
+		ctx.BuildFast = buildfast.(bool)
+	}
+
 	// Configure port (WASM server)
 	if port, exists := ctx.config.Get("port"); exists {
 		ctx.Port = int(port.(float64))
@@ -448,7 +454,8 @@ func (ctx *Context) BuildCommand(colorized ...bool) *command.Command {
 
 	// Add tags
 	if len(ctx.Tags) > 0 {
-		cmd.Add("-tags \"" + strings.Join(ctx.Tags, " ") + "\"")
+		cmd.Add("-tags " + strings.Join(ctx.Tags, ","))
+		// cmd.Add("-tags \"" + strings.Join(ctx.Tags, " ") + "\"")
 	}
 
 	// Add space delimited args

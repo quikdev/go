@@ -3,6 +3,7 @@ module github.com/quikdev/go
 go 1.21
 
 require (
+	github.com/Masterminds/semver v1.5.0
 	github.com/alecthomas/kong v0.8.1
 	github.com/alegrey91/go-upx v0.2.1
 	github.com/charmbracelet/huh v0.3.0

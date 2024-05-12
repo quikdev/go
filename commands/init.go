@@ -220,7 +220,7 @@ func (i *Init) Run(c *Context) error {
 	util.BailOnError(err)
 
 	// Check for existing go module
-	if util.FileExists(filepath.Join(abspath, "go.mod")) || util.FileExists(filepath.Join(abspath, "package.json")) || util.FileExists(filepath.Join(abspath, "manifest.json")) {
+	if util.FileExists(filepath.Join(abspath, "go.mod")) || util.FileExists(filepath.Join(abspath, "manifest.json")) {
 		recreate := false
 		backup := true
 		if i.Overwrite == true {
@@ -244,7 +244,7 @@ func (i *Init) Run(c *Context) error {
 		}
 
 		// Archive the old module
-		list := []string{"go.mod", "go.sum", "go.work", "package.json", "manifest.json", "README.md", "LICENSE", ".gitignore", appname + ".go", "main.go", "internal", "cmd", "submodule", "module_a", "module_b", "greeting"}
+		list := []string{"go.mod", "go.sum", "go.work", "manifest.json", "README.md", "LICENSE", ".gitignore", appname + ".go", "main.go", "internal", "cmd", "submodule", "module_a", "module_b", "greeting"}
 		if backup {
 			files := []string{}
 			for _, item := range list {

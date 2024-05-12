@@ -93,9 +93,9 @@ func (b *Run) Run(c *Context) error {
 		if ctx.Tidy {
 			if !ctx.Cached {
 				if hide {
-					util.BailOnError(util.StreamNoHighlight("go mod tidy"))
+					util.BailOnError(util.StreamNoStdErrNoHighlight("go mod tidy"))
 				} else {
-					util.BailOnError(util.Stream("go mod tidy"))
+					util.BailOnError(util.StreamNoStdErr("go mod tidy"))
 					fmt.Println("")
 				}
 			}

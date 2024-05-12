@@ -8,7 +8,6 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
-	"sync"
 )
 
 func Output(cmd string, cwd ...string) ([]byte, error) {
@@ -47,11 +46,11 @@ func Output(cmd string, cwd ...string) ([]byte, error) {
 func streamcmd(raw bool, cmd string, cwd ...string) error {
 	Highlight(cmd)
 
-	return streamcmdnohighlight(raw, cmd, cwd...)
+	return streamcmdnohighlight(raw, cmd, false, cwd...)
 }
 
-func streamcmdnohighlight(raw bool, cmd string, cwd ...string) error {
-	var wg sync.WaitGroup
+func streamcmdnohighlight(raw bool, cmd string, nostderr bool, cwd ...string) error {
+	// var wg sync.WaitGroup
 	var wd string
 	if len(cwd) > 0 {
 		wd, _ = os.Getwd()
@@ -86,13 +85,21 @@ func streamcmdnohighlight(raw bool, cmd string, cwd ...string) error {
 		return err
 	}
 
-	wg.Add(2)
+	// wg.Add(2)
 
 	var errMsg string
-	go stream(raw, stdout, "stdout", &wg)
-	go stream(raw, stderr, "stderr", &wg, &errMsg)
+	go stream(raw, stdout, "stdout")
+	if nostderr {
+		go stream(raw, stderr, "stdout")
+	} else {
+		go stream(raw, stderr, "stderr", &errMsg)
+	}
 
-	wg.Wait()
+	if err := command.Wait(); err != nil {
+		return err
+	}
+
+	// wg.Wait()
 
 	if len(errMsg) > 0 {
 		return errors.New(errMsg)
@@ -105,8 +112,18 @@ func Stream(cmd string, cwd ...string) error {
 	return streamcmd(false, cmd, cwd...)
 }
 
+func StreamNoStdErr(cmd string, cwd ...string) error {
+	Highlight(cmd)
+
+	return streamcmdnohighlight(false, cmd, true, cwd...)
+}
+
 func StreamNoHighlight(cmd string, cwd ...string) error {
-	return streamcmdnohighlight(false, cmd, cwd...)
+	return streamcmdnohighlight(false, cmd, false, cwd...)
+}
+
+func StreamNoStdErrNoHighlight(cmd string, cwd ...string) error {
+	return streamcmdnohighlight(true, cmd, true, cwd...)
 }
 
 func StreamRaw(cmd string, cwd ...string) error {
@@ -114,11 +131,11 @@ func StreamRaw(cmd string, cwd ...string) error {
 }
 
 func StreamRawNoHighlight(cmd string, cwd ...string) error {
-	return streamcmdnohighlight(true, cmd, cwd...)
+	return streamcmdnohighlight(true, cmd, false, cwd...)
 }
 
-func stream(raw bool, reader io.Reader, streamType string, wg *sync.WaitGroup, errMsg ...*string) {
-	defer wg.Done()
+func stream(raw bool, reader io.Reader, streamType string /*, wg *sync.WaitGroup*/, errMsg ...*string) {
+	// defer wg.Done()
 
 	// Create a buffer for reading from the reader
 	buf := make([]byte, 1024)
