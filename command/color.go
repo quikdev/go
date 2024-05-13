@@ -81,7 +81,7 @@ func colorize(input string, displayhelp ...bool) string {
 				if startsWithQuote {
 					result[i] = yellowDim("\"") + dim(" \\\n     ") + yellowDimItalic(part)
 				} else {
-					result[i] = yellowDimItalic(part)
+					result[i] = "    " + yellowDimItalic(part)
 				}
 			} else {
 				result[i] = yellowDim(value)
@@ -91,19 +91,19 @@ func colorize(input string, displayhelp ...bool) string {
 			}
 		case "-gccgoflags":
 			active = "gccgoflags"
-			result[i] = yellowItalic(part + "=")
+			result[i] = "  " + yellowItalic(part+"=") + dim(" \\") + "\n"
 			if help {
 				result[i] += tip(" (link arguments to gcc-cgo tool)")
 			}
 		case "-gcflags":
 			active = "gcflags"
-			result[i] = yellowItalic(part + "=")
+			result[i] = "  " + yellowItalic(part+"=") + dim(" \\") + "\n"
 			if help {
 				result[i] += tip(" (link arguments to gc tool)")
 			}
 		case "-asmflags":
 			active = "asmflags"
-			result[i] = yellowItalic(part + "=")
+			result[i] = "  " + yellowItalic(part+"=") + dim(" \\") + "\n"
 			if help {
 				result[i] += tip(" (link arguments to asm tool)")
 			}
@@ -186,11 +186,11 @@ func colorize(input string, displayhelp ...bool) string {
 							}
 						}
 					} else {
-						result[i] = yellowBrightBold(part)
+						result[i] = "    " + yellowBrightBold(part)
 					}
 
 					if startsWithQuote {
-						result[i] = yellowDimBold("\"") + dim(" \\") + "\n    " + result[i]
+						result[i] = yellowDimBold("\"") + dim(" \\") + "\n" + result[i]
 					}
 
 					if help && part[0:1] == "-" {
@@ -207,7 +207,7 @@ func colorize(input string, displayhelp ...bool) string {
 					if endsWithQuote {
 						result[i] = result[i] + dim(" \\") + yellowDim("\n   \"") + dim(" \\\n  ")
 					} else {
-						result[i] = result[i] + dim(" \\") + "\n    "
+						result[i] = result[i] + dim(" \\") + "\n"
 					}
 				} else if active == "gccgoflags" {
 					if LDFLAG_RE.Match([]byte(part)) {
@@ -223,11 +223,11 @@ func colorize(input string, displayhelp ...bool) string {
 							}
 						}
 					} else {
-						result[i] = yellowBrightBold(part)
+						result[i] = "    " + yellowBrightBold(part)
 					}
 
 					if startsWithQuote {
-						result[i] = yellowDimBold("\"") + dim(" \\") + "\n    " + result[i]
+						result[i] = yellowDimBold("\"") + dim(" \\") + "\n" + result[i]
 					}
 
 					if help && part[0:1] == "-" {
@@ -244,7 +244,7 @@ func colorize(input string, displayhelp ...bool) string {
 					if endsWithQuote {
 						result[i] = result[i] + dim(" \\") + yellowDim("\n   \"") + dim(" \\\n  ")
 					} else {
-						result[i] = result[i] + dim(" \\") + "\n    "
+						result[i] = result[i] + dim(" \\") + "\n"
 					}
 				} else if active == "gcflags" {
 					if LDFLAG_RE.Match([]byte(part)) {
@@ -260,11 +260,11 @@ func colorize(input string, displayhelp ...bool) string {
 							}
 						}
 					} else {
-						result[i] = yellowBrightBold(part)
+						result[i] = "    " + yellowBrightBold(part)
 					}
 
 					if startsWithQuote {
-						result[i] = yellowDimBold("\"") + dim(" \\") + "\n    " + result[i]
+						result[i] = yellowDimBold("\"") + dim(" \\") + "\n" + result[i]
 					}
 
 					if help && part[0:1] == "-" {
@@ -281,7 +281,7 @@ func colorize(input string, displayhelp ...bool) string {
 					if endsWithQuote {
 						result[i] = result[i] + dim(" \\") + yellowDim("\n   \"") + dim(" \\\n  ")
 					} else {
-						result[i] = result[i] + dim(" \\") + "\n    "
+						result[i] = result[i] + dim(" \\") + "\n"
 					}
 				} else if active == "asmflags" {
 					if LDFLAG_RE.Match([]byte(part)) {
@@ -337,19 +337,6 @@ func colorize(input string, displayhelp ...bool) string {
 						}
 					}
 					result[i] += magentaDim("    \"") + dim(" \\\n")
-					// result[i] = magentaBright(part) + dim(" \\\n   ")
-					// if !endsWithQuote {
-					// 	result[i] += " "
-					// } else {
-					// 	result[i] += magentaDim("\"") + dim(" \\\n  ")
-					// }
-
-					// result[i] = magentaDim("\"") + dim(" \\\n      ")
-					// tags := strings.Split(part, " ")
-					// for ti, tag := range tags {
-					// 	result[i] += magentaBright(strings.TrimSpace(tag))
-					// 	result[i] += dim(" \\") + magentaDim("\n   \"") + dim(" \\\n  ")
-					// }
 				} else if active == "cwd" {
 					result[i] = blueBrightBold(part) + dim(" \\\n  ")
 					active = "none"
