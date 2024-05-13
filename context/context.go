@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"slices"
 	"strings"
 	"time"
 
@@ -537,7 +538,7 @@ func (ctx *Context) RunCommand(colorized ...bool) *command.Command {
 		cmd.Add(out)
 
 		// append arguments supplied by the user
-		// ignore the build file or the `--` separator if it exists.
+		// ignore the build file, or the `--` separator if it exists.
 		args := os.Args[2:]
 		if len(args) > 0 {
 			index := util.IndexOf[string](args, "--")
@@ -548,6 +549,12 @@ func (ctx *Context) RunCommand(colorized ...bool) *command.Command {
 					args = args[1:]
 				}
 			}
+		}
+
+		// Ignore the no-cache flag
+		i := util.IndexOf[string](args, "--no-cache")
+		if i >= 0 {
+			args = slices.Delete(args, i, i+1)
 		}
 
 		if len(args) > 0 {
