@@ -552,9 +552,12 @@ func (ctx *Context) RunCommand(colorized ...bool) *command.Command {
 		}
 
 		// Ignore the no-cache flag
-		i := util.IndexOf[string](args, "--no-cache")
-		if i >= 0 {
-			args = slices.Delete(args, i, i+1)
+		ignoreList := []string{"bundle", "os", "wasm", "output", "tips", "minify", "shrink", "dry-run", "nowork", "update", "port", "no-cache"}
+		for _, ignored := range ignoreList {
+			i := util.IndexOf[string](args, "--"+ignored)
+			if i >= 0 {
+				args = slices.Delete(args, i, i+1)
+			}
 		}
 
 		if len(args) > 0 {
