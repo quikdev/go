@@ -242,14 +242,20 @@ func (ctx *Context) Configure() {
 		}
 	}
 
+	splitFn := func(c rune) bool {
+		return c == ' ' || c == '='
+	}
+
 	// Space-delimited args
 	space := []string{"asmflags", "gccgoflags", "gcflags"}
 	for _, flag := range space {
 		if items, exists := ctx.config.Get(flag); exists {
-			for nm, val := range items.(map[string]string) {
+			for _, item := range items.([]interface{}) {
+				parts := strings.FieldsFunc(item.(string), splitFn)
+				nm := parts[0]
 				vals := []string{}
-				if val != util.EmptyString {
-					vals = []string{val}
+				if len(parts) > 1 {
+					vals = parts[1:]
 				}
 
 				switch flag {
@@ -261,6 +267,41 @@ func (ctx *Context) Configure() {
 					ctx.GCFlags.Add(nm, vals...)
 				}
 			}
+			// for _, value := range items.([]string) {
+			// 	for _, line := range strings.Split(value, " ") {
+			// 		var rng []string
+			// 		if strings.Contains(line, "=") {
+			// 			rng = strings.Split(line, "=")
+			// 		} else {
+			// 			rng = strings.Split(line, " ")
+			// 		}
+			// 		for nm, val := range rng {
+			// 			switch flag {
+			// 			case "asmflags":
+			// 				ctx.ASMFlags.Add(nm, val)
+			// 			case "gccgoflags":
+			// 				ctx.GCCGoFlags.Add(nm, val)
+			// 			case "gcflags":
+			// 				ctx.GCFlags.Add(nm, val)
+			// 			}
+			// 		}
+			// 	}
+			// }
+			// for nm, val := range items.(map[string]string) {
+			// 	vals := []string{}
+			// 	if val != util.EmptyString {
+			// 		vals = []string{val}
+			// 	}
+
+			// 	switch flag {
+			// 	case "asmflags":
+			// 		ctx.ASMFlags.Add(nm, vals...)
+			// 	case "gccgoflags":
+			// 		ctx.GCCGoFlags.Add(nm, vals...)
+			// 	case "gcflags":
+			// 		ctx.GCFlags.Add(nm, vals...)
+			// 	}
+			// }
 		}
 	}
 

@@ -1,6 +1,7 @@
 package command
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -15,7 +16,10 @@ func colorize(input string, displayhelp ...bool) string {
 
 	// This is a hack to support the nex tag syntax. The `=` is added during
 	// the colorization of tag elements
-	input = strings.ReplaceAll(input, "-tags=", "-tags ")
+	params := []string{"tags", "gcflags", "gccgoflags", "asmflags"}
+	for _, p := range params {
+		input = strings.ReplaceAll(input, fmt.Sprintf(`-%s=`, p), fmt.Sprintf(`-%s `, p))
+	}
 
 	parts := splitStringWithQuotes(input)
 	result := make([]string, len(parts))
@@ -87,19 +91,19 @@ func colorize(input string, displayhelp ...bool) string {
 			}
 		case "-gccgoflags":
 			active = "gccgoflags"
-			result[i] = yellowItalic(part)
+			result[i] = yellowItalic(part + "=")
 			if help {
 				result[i] += tip(" (link arguments to gcc-cgo tool)")
 			}
 		case "-gcflags":
 			active = "gcflags"
-			result[i] = yellowItalic(part)
+			result[i] = yellowItalic(part + "=")
 			if help {
 				result[i] += tip(" (link arguments to gc tool)")
 			}
 		case "-asmflags":
 			active = "asmflags"
-			result[i] = yellowItalic(part)
+			result[i] = yellowItalic(part + "=")
 			if help {
 				result[i] += tip(" (link arguments to asm tool)")
 			}

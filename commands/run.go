@@ -287,6 +287,7 @@ func (b *Run) Run(c *Context) error {
 
 			wg.Wait()
 		} else {
+			// fmt.Println(cmd.String())
 			cmd.Run(ctx.CWD)
 
 			// Forcibly exit the process when the command finishes

@@ -1,6 +1,7 @@
 package context
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/quikdev/go/util"
@@ -30,6 +31,16 @@ func (a *args) Size() int {
 	return len(a.data)
 }
 
-func (a *args) String() string {
-	return "-" + a.flag + " \"" + strings.Join(a.data, " ") + "\""
+func (a *args) String(quoted ...bool) string {
+	quote := false
+	if len(quoted) > 0 {
+		quote = quoted[0]
+	}
+
+	q := ""
+	if quote {
+		q = `"`
+	}
+
+	return fmt.Sprintf(`-%s=%s%s%s`, a.flag, q, strings.Join(a.data, " "), q)
 }
