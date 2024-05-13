@@ -103,11 +103,11 @@ func (b *Run) Run(c *Context) error {
 
 		vars := ctx.GetConfig().GetEnvVars()
 		if len(vars) > 0 {
-			util.Stdout(`# autoapplying the following environment variables`)
+			util.Stdout(`# autoapplying the following environment variables` + "\n")
 			for key, value := range vars {
-				util.Stdout("  " + strings.Replace(util.SubtleHighlighter(key), "\n", "", 1) + util.Dim("=") + strings.ReplaceAll(util.Highlighter(value), "\n", ""))
+				util.Stdout("\n  " + strings.Replace(util.SubtleHighlighter(key), "\n", "", 1) + util.Dim("=") + strings.ReplaceAll(util.Highlighter(value), "\n", ""))
 			}
-			fmt.Println("")
+			fmt.Printf("\n\n")
 		}
 	}
 
@@ -287,6 +287,7 @@ func (b *Run) Run(c *Context) error {
 
 			wg.Wait()
 		} else {
+			fmt.Println(cmd.String())
 			cmd.Run(ctx.CWD)
 
 			// Forcibly exit the process when the command finishes

@@ -12,6 +12,7 @@ var (
 	version     string
 )
 
+// TODO: Write my own code here
 func main() {
 	// "Export" the function for JavaScript
 	js.Global().Set("hello", hello())

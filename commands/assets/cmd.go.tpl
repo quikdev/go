@@ -17,6 +17,7 @@ func init() {
   fmt.Println("(Created on %v)\n", buildTime)
 }
 
+// TODO: Write my code here
 func main() {
 	// Define command-line flags
 	person := flag.String("person", "World", "Specify a name")

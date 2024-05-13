@@ -11,6 +11,7 @@ var (
   buildTime string
 )
 
+// TODO: Write my code
 func main() {
   fmt.Println(SayHello())
 }

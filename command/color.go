@@ -13,6 +13,10 @@ func colorize(input string, displayhelp ...bool) string {
 		help = displayhelp[0]
 	}
 
+	// This is a hack to support the nex tag syntax. The `=` is added during
+	// the colorization of tag elements
+	input = strings.ReplaceAll(input, "-tags=", "-tags ")
+
 	parts := splitStringWithQuotes(input)
 	result := make([]string, len(parts))
 	dim := color.New(color.FgWhite, color.Faint).SprintFunc()
@@ -130,12 +134,12 @@ func colorize(input string, displayhelp ...bool) string {
 			active = "none"
 		case "-tags":
 			active = "tags"
-			result[i] = magentaItalic(part)
+			result[i] = magentaItalic(part + "=")
 			if help {
 				result[i] += tip(" (additional build tags)")
 			}
-			result[i] += " " + dim(" \\\n    ")
-			// result[i] += " " + magentaDim("\"") + dim(" \\\n    ")
+			// result[i] += " " + dim(" \\\n    ")
+			result[i] += magentaDim("\"") + dim(" \\\n    ")
 		// -i is deprecated
 		case "-i":
 			active = "none"
@@ -328,6 +332,7 @@ func colorize(input string, displayhelp ...bool) string {
 							result[i] += "     "
 						}
 					}
+					result[i] += magentaDim("    \"") + dim(" \\\n")
 					// result[i] = magentaBright(part) + dim(" \\\n   ")
 					// if !endsWithQuote {
 					// 	result[i] += " "

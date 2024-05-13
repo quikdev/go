@@ -454,7 +454,7 @@ func (ctx *Context) BuildCommand(colorized ...bool) *command.Command {
 
 	// Add tags
 	if len(ctx.Tags) > 0 {
-		cmd.Add("-tags " + strings.Join(ctx.Tags, ","))
+		cmd.Add("-tags=" + strings.Join(ctx.Tags, ","))
 		// cmd.Add("-tags \"" + strings.Join(ctx.Tags, " ") + "\"")
 	}
 
