@@ -12,6 +12,7 @@ import (
 type Config struct {
 	data    map[string]interface{}
 	cfgfile string
+	exists  bool
 }
 
 var jsonfiles = []string{"manifest"}
@@ -19,13 +20,16 @@ var warned = false
 
 func New() *Config {
 	cfgfile := "manifest.json"
+	exists := false
 	data, err := readJSON(cfgfile)
 	if err != nil {
-		var empty string
-		cfgfile = empty
+		var emptystr string
+		cfgfile = emptystr
+	} else {
+		exists = true
 	}
 
-	return &Config{data: data, cfgfile: cfgfile}
+	return &Config{data: data, cfgfile: cfgfile, exists: exists}
 }
 
 func readJSON(file string) (map[string]interface{}, error) {
@@ -53,6 +57,10 @@ func readJSON(file string) (map[string]interface{}, error) {
 }
 
 var empty interface{}
+
+func (cfg *Config) ManifestExists() bool {
+	return cfg.exists
+}
 
 func (cfg *Config) Get(name string) (interface{}, bool) {
 	if strings.Contains(name, ".") {

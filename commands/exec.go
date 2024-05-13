@@ -15,6 +15,11 @@ type Do struct {
 
 func (d *Do) Run(c *Context) error {
 	ctx := context.New()
+
+	if !ctx.GetConfig().ManifestExists() {
+		util.Stderr("script unavailable (manifest.json not found)", true)
+	}
+
 	ctx.Configure()
 
 	scripts, exists := ctx.GetConfig().Get("scripts")
