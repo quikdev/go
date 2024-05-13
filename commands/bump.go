@@ -14,10 +14,13 @@ type Bump struct {
 	Type string `arg:"type" optional:"" default:"patch" enum:"major,minor,patch,prerelease,pre,build" help:"major, minor, patch (default), prerelease, or build"`
 }
 
-// TODO: test this
-// with multiline support
 func (b *Bump) Run(c *Context) error {
 	ctx := context.New()
+
+	if !ctx.GetConfig().ManifestExists() {
+		util.Stderr("cannot bump version in manifest.json (manifest not found)", true)
+	}
+
 	ctx.Configure()
 	cfg := ctx.GetConfig()
 

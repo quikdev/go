@@ -1,4 +1,4 @@
-# QuikGo (qgo)
+# QuikGo `qgo`
 
 QuikGo expands upon the Go toolchain, providing a simple and consistent developer experience across projects.
 
@@ -11,18 +11,23 @@ QuikGo adds:
 
 Developers only need to remember a few basic commands:
 
-| Basic Command                | Description                                                  |
-| ---------------------------- | :----------------------------------------------------------- |
-| [`qgo init`](#init)           | Initialize a new app (with templates).                       |
-| [`qgo run`](#run--build)      | Like `go run`, but reads configuration from JSON.          |
-| [`qgo build`](#run--build)    | Like `go build` but reads configuration from JSON.         |
-| [`qgo test`](#test)           | Run the test suite with TAP/formatted output (pretty tests). |
-| [`qgo bump`](#bump)           | Bump the version number.
-| [`qgo todo`](#todo)           | Output all the TODO items in the code base.                  |
-| [`qgo exec`](#exec)           | Run local scripts found in the manifest.                     |
-| [`qgo uninstall`](#uninstall) | Uninstall apps that were installed with `go install`.      |
+| Basic Commands            | Description                                                  |
+| ------------------------- | :----------------------------------------------------------- |
+| [`qgo init`](#init)        | Initialize a new app (with templates).                       |
+| [`qgo run`](#run--build)   | Like `go run`, but reads configuration from JSON.          |
+| [`qgo build`](#run--build) | Like `go build` but reads configuration from JSON.         |
+| [`qgo test`](#test)        | Run the test suite with TAP/formatted output (pretty tests). |
 
-By simplifying the development environment, Go developers derive the following benefits:
+Some convenience commands are available as well.
+
+| More Commands                | Description                                             |
+| ---------------------------- | :------------------------------------------------------ |
+| [`qgo bump`](#bump)           | Bump the version number.                                |
+| [`qgo todo`](#todo)           | Output all the TODO items in the code base.             |
+| [`qgo exec`](#exec)           | Run local scripts found in the manifest.                |
+| [`qgo uninstall`](#uninstall) | Uninstall apps that were installed with `go install`. |
+
+QuikGo simplifies development environments with:
 
 - Automation
 - Standards & Architecture
@@ -332,7 +337,7 @@ For example, if manifest.json has a `"version": "1.0.0"`, running `qgo bump` wil
 
 ## Todo
 
-The `todo` command is a convenience method that parses all of the `.go` files, identifying comments that start with `// TODO` (or some case insensitive variation). All items are output to the screen. It is also possible to save this to disk.
+The `todo` command is a convenience method that parses all of the `.go` files, identifying comments that start with `// TODO:`, `// TODO -`, or case insensitive variations (multiline comments supported too). All items are output to the screen. It is also possible to save this reort to disk.
 
 ```sh
 Usage: QuikGo todo
@@ -348,9 +353,22 @@ Flags:
   -o, --output="./todos.txt"    output file name/location
 ```
 
-Valid formats include `json`, `markdown`/`md`, and `text` (default).
+Valid formats include `text` (default), `json`, and `markdown`/`md`.
 
 Output looks like:
+
+_Text_
+
+```
+Abstract this code to a function
+  at cmd\main.go:20
+
+Add notes about why this had to be written
+  at cmd\main.go:23
+
+Remove this when v3.0.0 is released
+  at cmd\main.go:34
+```
 
 _JSON_
 
@@ -382,19 +400,6 @@ _Markdown_
 [ ] Remove this when v3.0.0 is released _at cmd\main.go:**34**_
 ```
 
-_Text_
-
-```
-Abstract this code to a function
-  at cmd\main.go:20
-
-Add notes about why this had to be written
-  at cmd\main.go:23
-
-Remove this when v3.0.0 is released
-  at cmd\main.go:34
-```
-
 ## Exec
 
 ```sh
@@ -423,7 +428,7 @@ The `exec` command runs the script/command found in the manifet/package `script`
 }
 ```
 
-Running `qgo exec test:json` would execute `qgo test -f json`.
+Running `qgo exec test:json` would execute `qgo test -f json`. These examples are contrived, but can be very useful for running chained commands, other executables, and aliasing other complex commands (like packaging executables into installers).
 
 ## Uninstall
 
