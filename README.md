@@ -246,7 +246,7 @@ QuikGo supports dynamic configurations via "profiles". A profile exists in the `
 }
 ```
 
-Profiles can be any/all of the supported [manifest options](#full_list_of_manifest_options). When a profile is applied, the values are _merged_ with the main manifest options (overriding when necessary). Merging is additive (i.e. no deletions).
+Profiles can be any/all of the supported [manifest options](#full_list_of_manifest_options) (except `profile`, since nesting is not supported). When a profile is applied, the values are _merged_ with the main manifest options (overriding when necessary). Merging is additive (i.e. no deletions).
 
 To apply a profile, pass the `--profile` flag with the name of the profile as it is defined in the `manifest.json` file. Multiple profiles are supported, but beware that conflicts will always be resolved by the last profile applied.
 
@@ -572,6 +572,9 @@ For programmatic use, pass the `--no-warn` flag if you want to skip the warning/
   "p": 1,                                   // The number of programs that can be run in parallel
   "pgo": "file",                            // Specify the file path of a profile for profile-guided optimization
   "port": 8000,                             // Port to run WASM test server on
+  "profile": {
+    "<profile_name>": {...}		    // Profile name to be passed to build/run commands via --profile flag.
+  },			    // Profiles to apply dynamically at build/run time.
   "scripts": {                              // Collection of scripts to run with qgo exec
     "alias": "<command>"                    // Alias and command
   },
