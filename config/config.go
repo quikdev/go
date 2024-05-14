@@ -19,6 +19,7 @@ type Config struct {
 
 var jsonfiles = []string{"manifest"}
 var warned = false
+var warnedprofiles = false
 
 func New(profiles ...string) *Config {
 	cfgfile := "manifest.json"
@@ -42,6 +43,7 @@ func New(profiles ...string) *Config {
 		// to the data by merging the JSON attributes. This should
 		// provide the overrides needed to support this feature.
 		if len(profiles) > 0 {
+			used := []string{}
 			if profileData, exists := data["profile"]; exists {
 				for name, profile := range profileData.(map[string]interface{}) {
 					if util.IndexOf[string](profiles, name) >= 0 {
@@ -50,14 +52,29 @@ func New(profiles ...string) *Config {
 							util.Stderr(err, true)
 						}
 						data = mergemap.Merge(data, profile.(map[string]interface{}))
+						used = append(used, name)
 					}
 				}
+			}
+
+			if !warnedprofiles {
+				magenta := color.New(color.FgMagenta, color.Faint, color.Italic).SprintFunc()
+				dim := color.New(color.Faint).SprintFunc()
+				plural := ""
+				if len(profiles) != 1 {
+					plural = "s"
+				}
+				util.Stdout(fmt.Sprintf(" with %s"+dim(" profile%s applied\n"), magenta(strings.Join(used, "+")), plural))
+				warnedprofiles = true
 			}
 		}
 
 		delete(data, "profile")
 		delete(data, "default_profile")
 	}
+
+	// Adds an extra break after manifest notification
+	fmt.Println("")
 
 	return &Config{data: data, cfgfile: cfgfile, exists: exists}
 }
@@ -91,8 +108,7 @@ func readJSON(file string) (map[string]interface{}, error) {
 		if !warned {
 			magenta := color.New(color.FgMagenta, color.Faint).SprintFunc()
 			dim := color.New(color.Faint).SprintFunc()
-			fmt.Printf(dim("\n# using "+magenta("%s")+dim(" configuration\n")), file)
-			fmt.Println("")
+			fmt.Printf(dim("\n# using "+magenta("%s")+dim(" configuration")), file)
 			warned = true
 		}
 	}
