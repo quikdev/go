@@ -572,9 +572,9 @@ For programmatic use, pass the `--no-warn` flag if you want to skip the warning/
   "p": 1,                                   // The number of programs that can be run in parallel
   "pgo": "file",                            // Specify the file path of a profile for profile-guided optimization
   "port": 8000,                             // Port to run WASM test server on
-  "profile": {
-    "<profile_name>": {...}		    // Profile name to be passed to build/run commands via --profile flag.
-  },			    // Profiles to apply dynamically at build/run time.
+  "profile": {                              // Profiles to apply dynamically at build/run time.
+    "<profile_name>": {...}		              // Profile name to be passed to build/run commands via --profile flag.
+  },
   "scripts": {                              // Collection of scripts to run with qgo exec
     "alias": "<command>"                    // Alias and command
   },
