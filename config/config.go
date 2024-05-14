@@ -8,6 +8,7 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/peterbourgon/mergemap"
+	"github.com/quikdev/go/util"
 )
 
 type Config struct {
@@ -30,12 +31,24 @@ func New(profiles ...string) *Config {
 		exists = true
 	}
 
-	// TODO: Check profiles, then apply the specified profile(s)
+	// If no profiles are specified and the default_profile exists in the
+	// manifest, apply it.
+	if len(profiles) == 0 {
+		if p, exists := data["default_profile"]; exists {
+			profiles = []string{p.(string)}
+		}
+	}
+
+	// Check profiles, then apply the specified profile(s)
 	// to the data by merging the JSON attributes. This should
 	// provide the overrides needed to support this feature.
-	if profileData, exists := data["profile"]; exists {
-		for _, profile := range profileData.(map[string]interface{}) {
-			data = mergemap.Merge(data, profile.(map[string]interface{}))
+	if len(profiles) > 0 {
+		if profileData, exists := data["profile"]; exists {
+			for name, profile := range profileData.(map[string]interface{}) {
+				if util.IndexOf[string](profiles, name) >= 0 {
+					data = mergemap.Merge(data, profile.(map[string]interface{}))
+				}
+			}
 		}
 	}
 

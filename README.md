@@ -250,6 +250,8 @@ Profiles can be any/all of the supported [manifest options](#full_list_of_manife
 
 To apply a profile, pass the `--profile` flag with the name of the profile as it is defined in the `manifest.json` file. Multiple profiles are supported, but beware that conflicts will always be resolved by the last profile applied.
 
+> In manifest.json, it is possible to set a default profile (e.g. `"default_profile": "myprofile"`). When no profiles are specified in the `qgo` build/run command, the default profile will be applied if it exists.
+
 _Example manifest.json_
 
 ```js
@@ -575,6 +577,7 @@ For programmatic use, pass the `--no-warn` flag if you want to skip the warning/
   "profile": {                              // Profiles to apply dynamically at build/run time.
     "<profile_name>": {...}                 // Profile name to be passed to build/run commands via --profile flag.
   },
+  "default_profile" "name",                 // Default profile to apply when no profiles are specified.
   "scripts": {                              // Collection of scripts to run with qgo exec
     "alias": "<command>"                    // Alias and command
   },
