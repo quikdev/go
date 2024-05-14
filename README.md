@@ -549,7 +549,7 @@ For programmatic use, pass the `--no-warn` flag if you want to skip the warning/
   "description": "my example app",          // Description
   "env": {                                  // Environment variables
     "variable": "value",                    // Variable/value
-    "variable2": "manifest.attr"             // Variable/self-referencing value
+    "variable2": "manifest.attr"            // Variable/self-referencing value
   },
   "ldflags": [				    // Additional LDFlags
     "-H windowsgui"			    // example LDFlag
@@ -573,7 +573,7 @@ For programmatic use, pass the `--no-warn` flag if you want to skip the warning/
   "pgo": "file",                            // Specify the file path of a profile for profile-guided optimization
   "port": 8000,                             // Port to run WASM test server on
   "profile": {                              // Profiles to apply dynamically at build/run time.
-    "<profile_name>": {...}		              // Profile name to be passed to build/run commands via --profile flag.
+    "<profile_name>": {...}                 // Profile name to be passed to build/run commands via --profile flag.
   },
   "scripts": {                              // Collection of scripts to run with qgo exec
     "alias": "<command>"                    // Alias and command
