@@ -29,30 +29,35 @@ func New(profiles ...string) *Config {
 		cfgfile = emptystr
 	} else {
 		exists = true
-	}
 
-	// If no profiles are specified and the default_profile exists in the
-	// manifest, apply it.
-	if len(profiles) == 0 {
-		if p, exists := data["default_profile"]; exists {
-			profiles = []string{p.(string)}
+		// If no profiles are specified and the default_profile exists in the
+		// manifest, apply it.
+		if len(profiles) == 0 {
+			if p, exists := data["default_profile"]; exists {
+				profiles = []string{p.(string)}
+			}
 		}
-	}
 
-	// Check profiles, then apply the specified profile(s)
-	// to the data by merging the JSON attributes. This should
-	// provide the overrides needed to support this feature.
-	if len(profiles) > 0 {
-		if profileData, exists := data["profile"]; exists {
-			for name, profile := range profileData.(map[string]interface{}) {
-				if util.IndexOf[string](profiles, name) >= 0 {
-					data = mergemap.Merge(data, profile.(map[string]interface{}))
+		// Check profiles, then apply the specified profile(s)
+		// to the data by merging the JSON attributes. This should
+		// provide the overrides needed to support this feature.
+		if len(profiles) > 0 {
+			if profileData, exists := data["profile"]; exists {
+				for name, profile := range profileData.(map[string]interface{}) {
+					if util.IndexOf[string](profiles, name) >= 0 {
+						_, err := json.MarshalIndent(profile.(map[string]interface{}), "", "  ")
+						if err != nil {
+							util.Stderr(err, true)
+						}
+						data = mergemap.Merge(data, profile.(map[string]interface{}))
+					}
 				}
 			}
 		}
-	}
 
-	delete(data, "profile")
+		delete(data, "profile")
+		delete(data, "default_profile")
+	}
 
 	return &Config{data: data, cfgfile: cfgfile, exists: exists}
 }
@@ -62,11 +67,25 @@ func readJSON(file string) (map[string]interface{}, error) {
 
 	fileContents, err := os.ReadFile(file)
 	if err != nil {
+		if strings.Contains(err.Error(), "cannot find the file") {
+			if !warned {
+				util.Stdout("\n# no manifest available\n\n")
+				warned = true
+			}
+		}
+
 		return data, err
 	} else {
 		err = json.Unmarshal(fileContents, &data)
 		if err != nil {
-			return data, err
+			if syntaxErr, ok := err.(*json.SyntaxError); ok {
+				// Calculate the line number based on the byte offset
+				lineNumber := strings.Count(string(fileContents[:syntaxErr.Offset]), "\n") + 1
+				util.Stderr(fmt.Errorf("error reading manifest: %v\n  at %s:%d", err, file, lineNumber), true)
+			}
+
+			util.Stderr(fmt.Errorf("error reading manifest: %s", err.Error()), true)
+			// return data, err
 		}
 
 		if !warned {
