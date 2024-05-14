@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
+	"github.com/peterbourgon/mergemap"
 )
 
 type Config struct {
@@ -18,7 +19,7 @@ type Config struct {
 var jsonfiles = []string{"manifest"}
 var warned = false
 
-func New() *Config {
+func New(profiles ...string) *Config {
 	cfgfile := "manifest.json"
 	exists := false
 	data, err := readJSON(cfgfile)
@@ -28,6 +29,17 @@ func New() *Config {
 	} else {
 		exists = true
 	}
+
+	// TODO: Check profiles, then apply the specified profile(s)
+	// to the data by merging the JSON attributes. This should
+	// provide the overrides needed to support this feature.
+	if profileData, exists := data["profile"]; exists {
+		for _, profile := range profileData.(map[string]interface{}) {
+			data = mergemap.Merge(data, profile.(map[string]interface{}))
+		}
+	}
+
+	delete(data, "profile")
 
 	return &Config{data: data, cfgfile: cfgfile, exists: exists}
 }

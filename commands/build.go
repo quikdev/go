@@ -28,12 +28,13 @@ type Build struct {
 	NoWork      bool     `name:"nowork" type:"bool" help:"Set GOWORK=off when building"`
 	Update      bool     `name:"update" short:"u" type:"bool" help:"Update (go mod tidy) before building."`
 	IgnoreCache bool     `name:"no-cache" type:"bool" help:"Ignore the cache and rebuild, even if no Go files have changed."`
+	Profile     []string `name:"profile" optional:"" help:"Name of the manifest.json profile attribute to apply."`
 	File        string   `arg:"source" optional:"" help:"Go source file (ex: main.go)"`
 	// Container string `name:"container" default:"docker" type:"string" enum:"docker,podman" help:"The containerization technology to build with"`
 }
 
 func (b *Build) Run(c *Context) error {
-	ctx := context.New()
+	ctx := context.New(b.Profile...)
 	ctx.Configure()
 
 	if len(strings.TrimSpace(ctx.InputFile())) == 0 {

@@ -13,6 +13,7 @@ require (
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/logrusorgru/aurora/v3 v3.0.0
 	github.com/mpontillo/tap13 v1.0.2
+	github.com/peterbourgon/mergemap v0.0.1
 )
 
 require (

@@ -163,25 +163,28 @@ Arguments:
   [<args> ...]    Arguments to pass to the executable.
 
 Flags:
-  -h, --help                 Show context-sensitive help.
-  -v, --version              Display the QuikGo version.
-  -b, --bundle=BUNDLE,...    Bundle the application into a tarball/zipball
-      --os=OS,...            The operating system(s) to build for (any options
-                             from 'go tool dist list' is valid)
-      --wasm                 Output a web assembly (OS is ignored when this
-                             option is true)
-  -o, --output=STRING        Output file name
-  -t, --tips                 Display tips in the generated commands
-  -m, --minify               Set ldflags to strip debugging symbols and remove
-                             DWARF generations
-  -s, --shrink               Set gccgoflags to strip debugging symbols and
-                             remove DWARF generations
-  -c, --compress             Compress with UPX
-      --tiny                 Use tinygo (if available) instead of go to build.
-  -d, --dry-run              Display the command without executing it.
-      --nowork               Set GOWORK=off when building
-      --no-cache             Ignore the cache and rebuild, even if no Go files have changed.
-  -u, --update               Update (go mod tidy) before building.
+  -h, --help                   Show context-sensitive help.
+  -v, --version                Display the QuikGo version.
+
+  -b, --bundle=BUNDLE,...      Bundle the application into a tarball/zipball
+      --os=OS,...              The operating system(s) to build for (any
+                               option(s) from 'go tool dist list' is valid)
+      --wasm                   Output a web assembly (OS is ignored when this
+                               option is true)
+  -o, --output=STRING          Output file name
+  -t, --tips                   Display tips in the generated commands
+  -m, --minify                 Set ldflags to strip debugging symbols and remove
+                               DWARF generations
+  -s, --shrink                 Set gccgoflags to strip debugging symbols and
+                               remove DWARF generations
+  -d, --dry-run                Display the command without executing it.
+      --no-work                Set GOWORK=off when building
+  -u, --update                 Update (go mod tidy) before building.
+  -p, --port=INT               The port to run the HTTP server on (WASM only).
+      --no-cache               Ignore the cache and rebuild, even if no Go files
+                               have changed.
+      --profile=PROFILE,...    Name of the manifest.json profile attribute to
+                               apply.
 ```
 
 Both qgo commands output the `go` command being run, providing full transparency into what is happening on your computer. This command can be copied/pasted to run it directly. For example:
@@ -224,6 +227,87 @@ go build \
 An optional `-d` flag (dry-run) outputs the command without running it.
 
 For other flags, use `--help`.
+
+#### Profiles
+
+QuikGo supports dynamic configurations via "profiles". A profile exists in the `manifest.json` file, under a key called `profile`. For example:
+
+```js
+{
+  ...
+  "profile": {
+    "dev": {
+      ... dev options...
+    },
+    "prod": {
+      ... prod options...
+    }
+  }
+}
+```
+
+Profiles can be any/all of the supported [manifest options](#full_list_of_manifest_options). When a profile is applied, the values are _merged_ with the main manifest options (overriding when necessary). Merging is additive (i.e. no deletions).
+
+To apply a profile, pass the `--profile` flag with the name of the profile as it is defined in the `manifest.json` file. Multiple profiles are supported, but beware that conflicts will always be resolved by the last profile applied.
+
+_Example manifest.json_
+
+```js
+{
+  "name": "example",
+  "version": "0.0.2",
+  "description": "example",
+  "license": "AGPL-3.0",
+  "author": "jdoe",
+  "build": "cmd/main.go",
+  "update": true,
+  "variables": {
+    "main.name": "manifest.name",
+    "main.version": "manifest.version",
+    "main.description": "manifest.description"
+  },
+  "minify": true,
+  "env": {
+    "ABBRA_CADABRA": "magic"
+  },
+  "profile": {
+    "dev": {
+      "env": {
+        "MODE": "dev"
+      }
+    },
+    "prod": {
+      "env": {
+        "MODE": "prod"
+      }
+    }
+  }
+}
+```
+
+To use the dev profile additions, run `qgo run --profile dev`. This will behave as though the manifest looked like this:
+
+```js
+{
+  "name": "example",
+  "version": "0.0.2",
+  "description": "example",
+  "license": "AGPL-3.0",
+  "author": "jdoe",
+  "build": "cmd/main.go",
+  "update": true,
+  "variables": {
+    "main.name": "manifest.name",
+    "main.version": "manifest.version",
+    "main.description": "manifest.description"
+  },
+  "minify": true,
+  "env": {
+    "ABBRA_CADABRA": "magic",
+    "MODE": "dev"    // <-- Applied from dev profile
+  }
+}
+```
 
 ### Live Reload
 

@@ -52,14 +52,14 @@ type Context struct {
 	BuildFast           bool `json:"build_fast"`
 }
 
-func New() *Context {
+func New(profiles ...string) *Context {
 	wd, err := os.Getwd()
 	if err != nil {
 		wd = "./"
 	}
 
 	return &Context{
-		config:              config.New(),
+		config:              config.New(profiles...),
 		Env:                 make(map[string]string),
 		Variables:           []string{},
 		BuildFlags:          []string{},
@@ -552,11 +552,20 @@ func (ctx *Context) RunCommand(colorized ...bool) *command.Command {
 		}
 
 		// Ignore the no-cache flag
-		ignoreList := []string{"bundle", "os", "wasm", "output", "tips", "minify", "shrink", "dry-run", "nowork", "update", "port", "no-cache"}
+		ignoreList := []string{"bundle", "os", "wasm", "output", "tips", "minify", "shrink", "dry-run", "nowork", "update", "port", "no-cache", "profile"}
 		for _, ignored := range ignoreList {
-			i := util.IndexOf[string](args, "--"+ignored)
-			if i >= 0 {
-				args = slices.Delete(args, i, i+1)
+			for {
+				i := util.IndexOf[string](args, "--"+ignored)
+				if i >= 0 {
+					end := i + 1
+					if ignored == "profile" {
+						end += 1
+					}
+					args = slices.Delete(args, i, end)
+				}
+				if i < 0 {
+					break
+				}
 			}
 		}
 
