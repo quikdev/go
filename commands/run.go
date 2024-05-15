@@ -106,6 +106,7 @@ func (b *Run) Run(c *Context) error {
 		if len(vars) > 0 {
 			util.Stdout(`# autoapplying the following environment variables` + "\n")
 			for key, value := range vars {
+				os.Setenv(key, value)
 				util.Stdout("\n  " + strings.Replace(util.SubtleHighlighter(key), "\n", "", 1) + util.Dim("=") + strings.ReplaceAll(util.Highlighter(value), "\n", ""))
 			}
 			fmt.Printf("\n\n")
