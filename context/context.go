@@ -2,7 +2,6 @@ package context
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -91,6 +90,10 @@ func (ctx *Context) GetConfig() *config.Config {
 }
 
 func (ctx *Context) InputFile() string {
+	if build, exists := ctx.config.Get("build"); exists {
+		return build.(string)
+	}
+
 	file, err := findMainGoFile(ctx.CWD)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -608,7 +611,7 @@ func (ctx *Context) AddTag(tag string) {
 }
 
 func findMainGoFile(dir string) (string, error) {
-	files, err := ioutil.ReadDir(dir)
+	files, err := os.ReadDir(dir)
 	if err != nil {
 		return "", err
 	}
@@ -634,7 +637,7 @@ func findMainGoFile(dir string) (string, error) {
 }
 
 func containsMainFunction(filePath string) bool {
-	data, err := ioutil.ReadFile(filePath)
+	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return false
 	}
