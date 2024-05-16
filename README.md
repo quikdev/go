@@ -25,6 +25,7 @@ Some convenience commands are available as well.
 | [`qgo bump`](#bump)           | Bump the version number.                                |
 | [`qgo todo`](#todo)           | Output all the TODO items in the code base.             |
 | [`qgo exec`](#exec)           | Run local scripts found in the manifest.                |
+| [`qgo kill`](#kill)           | Kill a local process by executable name.                |
 | [`qgo uninstall`](#uninstall) | Uninstall apps that were installed with `go install`. |
 
 QuikGo simplifies development environments with:
@@ -515,6 +516,14 @@ The `exec` command runs the script/command found in the manifet/package `script`
 ```
 
 Running `qgo exec test:json` would execute `qgo test -f json`. These examples are contrived, but can be very useful for running chained commands, other executables, and aliasing other complex commands (like packaging executables into installers).
+
+## Kill
+
+This command will kill all running processes by name. For example, `qgo kill myapp.exe` (Windows) or `qgo kill myapp` (macOS) will kill all processes running `myapp.exe`/`myapp`. This command is not Go-specific. It will work with any executable.
+
+> Hopefully this command isn't required in your project, but it's not uncommon to have erroneous hanging processes that block the re-launch of a Go app during development. This feature helps clear hanging/orphan processes without having to manually identify every PID.
+
+Running `qgo kill` without specifying an executable will attempt to identify the executable that would be generated in a `qgo build` process (i.e extracts this name from the manifest.json).
 
 ## Uninstall
 

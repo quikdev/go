@@ -44,8 +44,10 @@ func New(profiles ...string) *Config {
 		// provide the overrides needed to support this feature.
 		if len(profiles) > 0 {
 			used := []string{}
+			availableprofiles := []string{}
 			if profileData, exists := data["profile"]; exists {
 				for name, profile := range profileData.(map[string]interface{}) {
+					availableprofiles = append(availableprofiles, name)
 					if util.IndexOf[string](profiles, name) >= 0 {
 						_, err := json.MarshalIndent(profile.(map[string]interface{}), "", "  ")
 						if err != nil {
@@ -57,7 +59,31 @@ func New(profiles ...string) *Config {
 				}
 			}
 
-			if !warnedprofiles {
+			// Notify user if a missing profile is specified
+			if len(used) == 0 {
+				if len(availableprofiles) == 0 {
+					plural := ""
+					if len(profiles) != 1 {
+						plural = "s"
+					}
+					util.Stderr(fmt.Sprintf(`%s profile%s not found (no profiles available in manifest.json)`, strings.Join(profiles, "/"), plural), true)
+				}
+
+				missing := []string{}
+				for _, name := range profiles {
+					if util.IndexOf[string](availableprofiles, name) < 0 {
+						missing = append(missing, name)
+					}
+				}
+
+				plural := ""
+				if len(missing) != 1 {
+					plural = "s"
+				}
+				util.Stderr(fmt.Sprintf(`%s profile%s not found in manifest.json - please use one/more of the following: %s (or create the missing profile%s)`, strings.Join(profiles, "/"), plural, strings.Join(availableprofiles, ", "), plural), true)
+			}
+
+			if !warnedprofiles && len(profiles) > 0 {
 				magenta := color.New(color.FgMagenta, color.Faint, color.Italic).SprintFunc()
 				dim := color.New(color.Faint).SprintFunc()
 				plural := ""
