@@ -36,7 +36,10 @@ func New(profiles ...string) *Config {
 		// manifest, apply it.
 		if len(profiles) == 0 {
 			if p, exists := data["default_profiles"]; exists {
-				profiles = p.([]string)
+				defaults := p.([]interface{})
+				for _, value := range defaults {
+					profiles = append(profiles, value.(string))
+				}
 			}
 		}
 

@@ -249,7 +249,7 @@ QuikGo supports dynamic configurations via "profiles". A profile exists in the `
 
 Profiles can be any/all of the supported [manifest options](#full_list_of_manifest_options) (except `profile`, since nesting is not supported). When a profile is applied, the values are _merged_ with the main manifest options (overriding when necessary). Merging is additive (i.e. no deletions).
 
-To apply a profile, pass the `--profile` flag with the name of the profile as it is defined in the `manifest.json` file. Multiple profiles are supported, but beware that conflicts will always be resolved by the last profile applied.
+To apply a profile, pass the `--profile` flag with the name of the profile as it is defined in the `manifest.json` file. Multiple profiles are supported, but beware that conflicts will always be resolved using the vales of the last profile applied.
 
 > In manifest.json, it is possible to set a default profile (e.g. `"default_profiles": ["myprofile"]`). When no profiles are specified in the `qgo` build/run command, the default profile will be applied if it exists.
 
