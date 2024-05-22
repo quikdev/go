@@ -2,11 +2,43 @@ package command
 
 import (
 	"fmt"
+	"os"
 	"regexp"
+	"runtime"
 	"strings"
 
 	"github.com/fatih/color"
 )
+
+func detectLineSeparator() string {
+	if runtime.GOOS == "windows" {
+		// Check for common environment variables that indicate specific shells
+		if os.Getenv("CMDER_ROOT") != "" {
+			// cmder
+			return "^"
+		} else if os.Getenv("PSModulePath") != "" {
+			// powershell
+			return "`"
+		} else if os.Getenv("MSYSTEM") != "" {
+			// git bash
+			return "\\"
+		} else if os.Getenv("COMSPEC") != "" {
+			switch os.Getenv("COMSPEC") {
+			// powershell
+			case "pwsh.exe":
+				fallthrough
+			case "powershell":
+				return "`"
+				// cmd
+			default:
+				return "^"
+			}
+		}
+		return "\\"
+	} else {
+		return "\\"
+	}
+}
 
 func colorize(input string, displayhelp ...bool) string {
 	help := false
@@ -14,7 +46,9 @@ func colorize(input string, displayhelp ...bool) string {
 		help = displayhelp[0]
 	}
 
-	// This is a hack to support the nex tag syntax. The `=` is added during
+	cr := detectLineSeparator()
+
+	// This is a hack to support the next tag syntax. The `=` is added during
 	// the colorization of tag elements
 	params := []string{"tags", "gcflags", "gccgoflags", "asmflags"}
 	for _, p := range params {
@@ -49,6 +83,7 @@ func colorize(input string, displayhelp ...bool) string {
 	LDFLAG_RE := regexp.MustCompile(LDFLAG_PATTERN)
 
 	active := "none"
+	last := active
 
 	for i, part := range parts {
 		value := part
@@ -79,7 +114,7 @@ func colorize(input string, displayhelp ...bool) string {
 		case "-x":
 			if active == "ldflags" {
 				if startsWithQuote {
-					result[i] = yellowDim("\"") + dim(" \\\n     ") + yellowDimItalic(part)
+					result[i] = fmt.Sprintf("%s %s\n     %s", yellowDim("\""), cr, yellowDimItalic(part))
 				} else {
 					result[i] = "    " + yellowDimItalic(part)
 				}
@@ -91,19 +126,19 @@ func colorize(input string, displayhelp ...bool) string {
 			}
 		case "-gccgoflags":
 			active = "gccgoflags"
-			result[i] = "  " + yellowItalic(part+"=") + dim(" \\") + "\n"
+			result[i] = "  " + yellowItalic(part+"=\"") + " " + dim(cr) + "\n"
 			if help {
 				result[i] += tip(" (link arguments to gcc-cgo tool)")
 			}
 		case "-gcflags":
 			active = "gcflags"
-			result[i] = "  " + yellowItalic(part+"=") + dim(" \\") + "\n"
+			result[i] = "  " + yellowItalic(part+"=\"") + " " + dim(cr) + "\n"
 			if help {
 				result[i] += tip(" (link arguments to gc tool)")
 			}
 		case "-asmflags":
 			active = "asmflags"
-			result[i] = "  " + yellowItalic(part+"=") + dim(" \\") + "\n"
+			result[i] = "  " + yellowItalic(part+"=\"") + " " + dim(cr) + "\n"
 			if help {
 				result[i] += tip(" (link arguments to asm tool)")
 			}
@@ -134,7 +169,7 @@ func colorize(input string, displayhelp ...bool) string {
 			if help {
 				result[i] += tip(" (print package names as they are compiled)")
 			}
-			result[i] += dim(" \\\n  ")
+			result[i] += " " + dim(cr) + "\n  "
 			active = "none"
 		case "-tags":
 			active = "tags"
@@ -143,7 +178,7 @@ func colorize(input string, displayhelp ...bool) string {
 				result[i] += tip(" (additional build tags)")
 			}
 			// result[i] += " " + dim(" \\\n    ")
-			result[i] += magentaDim("\"") + dim(" \\\n    ")
+			result[i] += magentaDim("\"") + " " + dim(cr) + "\n    "
 		// -i is deprecated
 		case "-i":
 			active = "none"
@@ -152,9 +187,9 @@ func colorize(input string, displayhelp ...bool) string {
 				result[i] += deprecated
 			}
 
-			result[i] += dim(" \\\n  ")
+			result[i] += " " + dim(cr) + "\n  "
 		case "&&":
-			result[i] = dim(" \\\n") + italicDim(part)
+			result[i] = " " + dim(cr) + "\n" + italicDim(part)
 			dim = color.New(color.FgHiWhite, color.Italic).SprintFunc()
 		case "-c":
 			if active != "ldflags" && active != "gccgoflags" && active != "gcflags" && active != "asmflags" {
@@ -170,7 +205,7 @@ func colorize(input string, displayhelp ...bool) string {
 		default:
 			switch i {
 			case 1:
-				result[i] = cyan(part) + dim(" \\") + "\n  "
+				result[i] = cyan(part) + " " + dim(cr) + "\n  "
 			default:
 				if active == "ldflags" {
 					if LDFLAG_RE.Match([]byte(part)) {
@@ -190,7 +225,7 @@ func colorize(input string, displayhelp ...bool) string {
 					}
 
 					if startsWithQuote {
-						result[i] = yellowDimBold("\"") + dim(" \\") + "\n" + result[i]
+						result[i] = yellowDimBold("\"") + " " + dim(cr) + "\n " + result[i]
 					}
 
 					if help && part[0:1] == "-" {
@@ -205,9 +240,9 @@ func colorize(input string, displayhelp ...bool) string {
 					}
 
 					if endsWithQuote {
-						result[i] = result[i] + dim(" \\") + yellowDim("\n   \"") + dim(" \\\n  ")
+						result[i] = result[i] + " " + dim(cr) + yellowDim("\n   \"") + " " + dim(cr) + "\n  "
 					} else {
-						result[i] = result[i] + dim(" \\") + "\n"
+						result[i] = result[i] + " " + dim(cr) + "\n"
 					}
 				} else if active == "gccgoflags" {
 					if LDFLAG_RE.Match([]byte(part)) {
@@ -227,7 +262,7 @@ func colorize(input string, displayhelp ...bool) string {
 					}
 
 					if startsWithQuote {
-						result[i] = yellowDimBold("\"") + dim(" \\") + "\n" + result[i]
+						result[i] = yellowDimBold("\"") + " " + dim(cr) + "\n" + result[i]
 					}
 
 					if help && part[0:1] == "-" {
@@ -242,9 +277,9 @@ func colorize(input string, displayhelp ...bool) string {
 					}
 
 					if endsWithQuote {
-						result[i] = result[i] + dim(" \\") + yellowDim("\n   \"") + dim(" \\\n  ")
+						result[i] = result[i] + " " + dim(cr) + yellowDim("\n   \"") + " " + dim(cr) + "\n  "
 					} else {
-						result[i] = result[i] + dim(" \\") + "\n"
+						result[i] = result[i] + " " + dim(cr) + "\n"
 					}
 				} else if active == "gcflags" {
 					if LDFLAG_RE.Match([]byte(part)) {
@@ -264,7 +299,7 @@ func colorize(input string, displayhelp ...bool) string {
 					}
 
 					if startsWithQuote {
-						result[i] = yellowDimBold("\"") + dim(" \\") + "\n" + result[i]
+						result[i] = yellowDimBold("\"") + " " + dim(cr) + "\n" + result[i]
 					}
 
 					if help && part[0:1] == "-" {
@@ -279,9 +314,9 @@ func colorize(input string, displayhelp ...bool) string {
 					}
 
 					if endsWithQuote {
-						result[i] = result[i] + dim(" \\") + yellowDim("\n   \"") + dim(" \\\n  ")
+						result[i] = result[i] + " " + dim(cr) + yellowDim("\n   \"") + dim(" \\\n  ")
 					} else {
-						result[i] = result[i] + dim(" \\") + "\n"
+						result[i] = result[i] + " " + dim(cr) + "\n"
 					}
 				} else if active == "asmflags" {
 					if LDFLAG_RE.Match([]byte(part)) {
@@ -301,7 +336,7 @@ func colorize(input string, displayhelp ...bool) string {
 					}
 
 					if startsWithQuote {
-						result[i] = yellowDimBold("\"") + dim(" \\") + "\n    " + result[i]
+						result[i] = yellowDimBold("\"") + " " + dim(cr) + "\n    " + result[i]
 					}
 
 					if help && part[0:1] == "-" {
@@ -316,9 +351,9 @@ func colorize(input string, displayhelp ...bool) string {
 					}
 
 					if endsWithQuote {
-						result[i] = result[i] + dim(" \\") + yellowDim("\n   \"") + dim(" \\\n  ")
+						result[i] = result[i] + " " + dim(cr) + yellowDim("\n   \"") + " " + dim(cr) + "  "
 					} else {
-						result[i] = result[i] + dim(" \\") + "\n    "
+						result[i] = result[i] + " " + dim(cr) + "\n    "
 					}
 				} else if active == "output" {
 					result[i] = blueBrightBold(value)
@@ -328,17 +363,17 @@ func colorize(input string, displayhelp ...bool) string {
 					result[i] = "" //magentaBright(part) + dim(" \\\n   ")
 					for ti, tag := range tags {
 						comma := " "
-						if ti < (len(tags) - 1) {
-							comma = ","
-						}
-						result[i] += magentaBright(tag) + magentaDim(comma) + dim(" \\\n")
+						// if ti < (len(tags) - 1) {
+						// 	comma = ","
+						// }
+						result[i] += magentaBright(tag) + magentaDim(comma) + " " + dim(cr) + "\n"
 						if ti < (len(tags) - 1) {
 							result[i] += "     "
 						}
 					}
-					result[i] += magentaDim("    \"") + dim(" \\\n")
+					result[i] += magentaDim("   \"") + " " + dim(cr) + "\n"
 				} else if active == "cwd" {
-					result[i] = blueBrightBold(part) + dim(" \\\n  ")
+					result[i] = blueBrightBold(part) + " " + dim(cr) + "\n  "
 					active = "none"
 				} else {
 					result[i] = dim(value)
@@ -349,6 +384,14 @@ func colorize(input string, displayhelp ...bool) string {
 		if endsWithQuote && (active == "ldflags" || active == "gccgoflags" || active == "gcflags" || active == "asmflags") {
 			active = "none"
 		}
+
+		if active != "gccgoflags" && active != "gcflags" && active != "asmflags" {
+			if last == "gccgoflags" || last == "gcflags" || last == "asmflags" {
+				result[i] = yellowDimItalic("  \" ") + dim(cr) + "\n" + result[i]
+			}
+		}
+
+		last = active
 	}
 
 	return strings.Join(result, " ")

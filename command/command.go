@@ -64,13 +64,6 @@ func (cmd *Command) Run(cwd ...string) {
 	vars := cfg.GetEnvVarList()
 
 	for _, code := range commands {
-		// params := []string{"-gccgoflags", "-gcflags", "-asmflags"}
-		// for _, parm := range params {
-		// 	for strings.Contains(code, parm+` "`) {
-
-		// 	}
-		// }
-
 		args := make([]string, len(code))
 		for i, line := range code {
 			if i > 1 {

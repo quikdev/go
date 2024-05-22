@@ -95,7 +95,7 @@ func New(profiles ...string) *Config {
 				util.Stderr(fmt.Sprintf(`%s profile%s not found in manifest.json - please use one/more of the following: %s (or create the missing profile%s)`, strings.Join(profiles, "/"), plural, strings.Join(availableprofiles, ", "), plural), true)
 			}
 
-			if !warnedprofiles && len(profiles) > 0 {
+			if !warnedprofiles && len(profiles) > 0 && os.Args[1] != "exec" {
 				magenta := color.New(color.FgMagenta, color.Faint, color.Italic).SprintFunc()
 				dim := color.New(color.Faint).SprintFunc()
 				plural := ""

@@ -154,7 +154,7 @@ func stream(raw bool, reader io.Reader, streamType string /*, wg *sync.WaitGroup
 
 		if streamType == "stderr" {
 			if raw {
-				fmt.Printf("%v", out)
+				fmt.Print(out)
 			} else {
 				Stderr(out)
 			}
@@ -164,7 +164,7 @@ func stream(raw bool, reader io.Reader, streamType string /*, wg *sync.WaitGroup
 			}
 		} else {
 			if raw {
-				fmt.Printf("%v", out)
+				fmt.Print(out)
 			} else {
 				Stdout(out)
 			}
