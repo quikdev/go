@@ -590,6 +590,7 @@ For programmatic use, pass the `--no-warn` flag if you want to skip the warning/
   "p": 1,                                   // The number of programs that can be run in parallel
   "pgo": "file",                            // Specify the file path of a profile for profile-guided optimization
   "port": 8000,                             // Port to run WASM test server on
+  "prekill": false,                         // Auto-run "qgo kill" before "qgo run"
   "profile": {                              // Profiles to apply dynamically at build/run time.
     "<os_name>": {...},                     // Optionally specify an operating system (windows, darwin, linux) to auto-apply when building on a specific OS.
     "<profile_name>": {...}                 // Profile name to be passed to build/run commands via --profile flag.

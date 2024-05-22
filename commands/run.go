@@ -33,6 +33,7 @@ type Run struct {
 	Port        int      `name:"port" short:"p" help:"The port to run the HTTP server on (WASM only)."`
 	IgnoreCache bool     `name:"no-cache" type:"bool" help:"Ignore the cache and rebuild, even if no Go files have changed."`
 	Profile     []string `name:"profile" optional:"" help:"Name of the manifest.json profile attribute to apply."`
+	Prekill     bool     `name:"prekill" type:"bool" help:"Run 'qgo kill' before running the command."`
 	File        string   `arg:"source" optional:"" help:"Go source file (ex: main.go)"`
 	Args        []string `arg:"" optional:"" help:"Arguments to pass to the executable."`
 	// Container string `name:"container" default:"docker" type:"string" enum:"docker,podman" help:"The containerization technology to build with"`
@@ -91,13 +92,28 @@ func (b *Run) Run(c *Context) error {
 	}
 
 	if !b.DryRun {
+		if ctx.Prekill {
+			killcmd := "qgo kill"
+			for _, p := range b.Profile {
+				killcmd += " --profile " + p
+			}
+			if hide {
+				util.BailOnError(util.StreamNoStdErrNoHighlight(killcmd))
+			} else {
+				util.BailOnError(util.StreamNoStdErr(killcmd))
+			}
+			if ctx.Tidy && !ctx.Cached {
+				fmt.Println("")
+			}
+		}
+
 		if ctx.Tidy {
 			if !ctx.Cached {
 				if hide {
 					util.BailOnError(util.StreamNoStdErrNoHighlight("go mod tidy"))
 				} else {
 					util.BailOnError(util.StreamNoStdErr("go mod tidy"))
-					fmt.Println("")
+					// fmt.Println("")
 				}
 			}
 		}

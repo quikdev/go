@@ -49,6 +49,7 @@ type Context struct {
 	IgnoreCache         bool
 	Cached              bool
 	BuildFast           bool `json:"build_fast"`
+	Prekill             bool
 }
 
 func New(profiles ...string) *Context {
@@ -188,6 +189,10 @@ func (ctx *Context) Configure() {
 				ctx.AddLinkedVariable(key, value.(string))
 			}
 		}
+	}
+
+	if kill, exists := ctx.config.Get("prekill"); exists {
+		ctx.Prekill = kill.(bool)
 	}
 
 	// Configured output
