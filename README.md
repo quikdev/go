@@ -251,7 +251,9 @@ Profiles can be any/all of the supported [manifest options](#full_list_of_manife
 
 To apply a profile, pass the `--profile` flag with the name of the profile as it is defined in the `manifest.json` file. Multiple profiles are supported, but beware that conflicts will always be resolved by the last profile applied.
 
-> In manifest.json, it is possible to set a default profile (e.g. `"default_profile": "myprofile"`). When no profiles are specified in the `qgo` build/run command, the default profile will be applied if it exists.
+> In manifest.json, it is possible to set a default profile (e.g. `"default_profiles": ["myprofile"]`). When no profiles are specified in the `qgo` build/run command, the default profile will be applied if it exists.
+
+> Profile names representing operating sytems (i.e. `windows`, `darwin` (mac), `linux`, or any value provided by [runtime.GOOS](https://github.com/golang/go/blob/master/src/go/build/syslist.go#L15-L32)) are automatically applied when the build process runs on that platform.
 
 _Example manifest.json_
 
@@ -282,6 +284,11 @@ _Example manifest.json_
     "prod": {
       "env": {
         "MODE": "prod"
+      }
+    },
+    "windows": {
+      "env": {
+        "MY_OS": "Windows Server 2016"
       }
     }
   }
@@ -584,6 +591,7 @@ For programmatic use, pass the `--no-warn` flag if you want to skip the warning/
   "pgo": "file",                            // Specify the file path of a profile for profile-guided optimization
   "port": 8000,                             // Port to run WASM test server on
   "profile": {                              // Profiles to apply dynamically at build/run time.
+    "<os_name>": {...},                     // Optionally specify an operating system (windows, darwin, linux) to auto-apply when building on a specific OS.
     "<profile_name>": {...}                 // Profile name to be passed to build/run commands via --profile flag.
   },
   "default_profile" "name",                 // Default profile to apply when no profiles are specified.

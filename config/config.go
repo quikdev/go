@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"runtime"
 	"strings"
 
 	"github.com/fatih/color"
@@ -34,8 +35,16 @@ func New(profiles ...string) *Config {
 		// If no profiles are specified and the default_profile exists in the
 		// manifest, apply it.
 		if len(profiles) == 0 {
-			if p, exists := data["default_profile"]; exists {
-				profiles = []string{p.(string)}
+			if p, exists := data["default_profiles"]; exists {
+				profiles = p.([]string)
+			}
+		}
+
+		// Apply OS-level profiles
+		if prof, exists := data["profile"]; exists {
+			os := strings.ToLower(runtime.GOOS)
+			if _, exists := prof.(map[string]interface{})[os]; exists {
+				profiles = append(profiles, os)
 			}
 		}
 
@@ -96,7 +105,7 @@ func New(profiles ...string) *Config {
 		}
 
 		delete(data, "profile")
-		delete(data, "default_profile")
+		delete(data, "default_profiles")
 	}
 
 	// Adds an extra break after manifest notification
