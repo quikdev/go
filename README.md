@@ -7,7 +7,7 @@ QuikGo adds:
 - [`manifest.json` files](#automation). Commands like `build` and `run` provide more complex configurations (ex: automatic `go mod tidy`, ldflags/variable substitution, minification, etc) without a complex command.
 - New project initialization with working code (modules/packages, apps/commands, WASM).
 - Integrated support for UPX, TinyGo, and other utilities.
-- Live reload support for applications.
+- Live reload support for applications. _(experimental)_
 
 Developers only need to remember a few basic commands:
 
@@ -40,11 +40,11 @@ QuikGo simplifies development environments with:
 go install github.com/quikdev/go/cmd/qgo@latest
 ```
 
-_Alternatively, download the latest binary release and add it to your `PATH`._
+TODO: _Alternatively, download the latest binary release and add it to your `PATH`._
 
 ### Automation
 
-`qgo` auto-constructs/runs commands using parameters found in a `manifest.json` file. This file exists in the same directory as your `go.mod` and `main.go`/`mymodule.go` files.
+`qgo` auto-constructs/runs commands using parameters found in a `manifest.json` file. This file exists in the same directory as your `go.mod`.
 
 For example, consider the following `manifest.json` file:
 
@@ -152,7 +152,7 @@ Flags:
 
 ## Run & Build
 
-The build & run commands are the same. They both build the executable. Run attempts to run the program after the build completes. Run also supports native live-reloading for applications.
+The build & run commands are the same. They both build the executable. Run attempts to run the program after the build completes. Run supports caching (to prevent unnecessary builds) and native live-reloading for applications.
 
 ```sh
 Usage: qgo build [<file>]
@@ -227,7 +227,7 @@ go build \
 
 An optional `-d` flag (dry-run) outputs the command without running it.
 
-For other flags, use `--help`.
+For more detail about other flags, run `qgo build --help` or `qgo run --help`.
 
 #### Profiles
 
@@ -431,7 +431,7 @@ For example, if manifest.json has a `"version": "1.0.0"`, running `qgo bump` wil
 
 ## Todo
 
-The `todo` command is a convenience method that parses all of the `.go` files, identifying comments that start with `// TODO:`, `// TODO -`, or case insensitive variations (multiline comments supported too). All items are output to the screen. It is also possible to save this reort to disk.
+The `todo` command is a convenience method that parses all of the `.go` files, identifying comments that start with `// TODO:`, `// TODO -`, or case insensitive variations (multiline comments supported too). All items are output to the screen. It is also possible to save this report to disk.
 
 ```sh
 Usage: QuikGo todo
@@ -531,6 +531,8 @@ This command will kill all running processes by name. For example, `qgo kill mya
 > Hopefully this command isn't required in your project, but it's not uncommon to have erroneous hanging processes that block the re-launch of a Go app during development. This feature helps clear hanging/orphan processes without having to manually identify every PID.
 
 Running `qgo kill` without specifying an executable will attempt to identify the executable that would be generated in a `qgo build` process (i.e extracts this name from the manifest.json).
+
+While it is not recommended, it is possible to set `"prekill": true` in `manifest.json` to run this command before `qgo run`.
 
 ## Uninstall
 
