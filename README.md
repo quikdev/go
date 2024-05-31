@@ -335,6 +335,14 @@ The `--compress` or `-c` flags can be passed to the build command to use [upx](h
 
 ![1708985377290](image/README/1708985377290.png)
 
+### "Pre" and "Post" Scripts
+
+`PreBuild`, `PreRun`, `PostBuild`, and `PostRun` are available flags that can be defined one or more times. Additionally, each of these can be specified in the `manifest.json` (all lowercase) as a string or array of strings containing commands to execute before/after a build/run.
+
+> NOTE: `PostBuild` will **NOT** run after a build called with the `run` command. This limitation may be lifted in the future.
+
+> NOTE: `PostBuild` and `PostRun` are not available when running web assemblies with the live development server.
+
 ### Building Web Assemblies (WASM)
 
 Web assembly generation is a little different from common Go applications. The `compress` method, which uses [upx](https://upx.github.io/), and some other minification features cannot be applied to web assemblies. These are automatically ignored.
@@ -592,11 +600,19 @@ For programmatic use, pass the `--no-warn` flag if you want to skip the warning/
   "p": 1,                                   // The number of programs that can be run in parallel
   "pgo": "file",                            // Specify the file path of a profile for profile-guided optimization
   "port": 8000,                             // Port to run WASM test server on
+  "prebuild": "<command>",                  // Command(s) to run before build
+            // or ["<cmd 1>", "<cmd 2>"],
   "prekill": false,                         // Auto-run "qgo kill" before "qgo run"
+  "prerun": "<command>",                    // Command(s) to run before run
+            // or ["<cmd 1>", "<cmd 2>"],
   "profile": {                              // Profiles to apply dynamically at build/run time.
     "<os_name>": {...},                     // Optionally specify an operating system (windows, darwin, linux) to auto-apply when building on a specific OS.
     "<profile_name>": {...}                 // Profile name to be passed to build/run commands via --profile flag.
   },
+  "postbuild": "<command>",                 // Command(s) to run after build
+            // or ["<cmd 1>", "<cmd 2>"],
+  "postrun": "<command>",                   // Command(s) to run after run
+            // or ["<cmd 1>", "<cmd 2>"],
   "default_profile" "name",                 // Default profile to apply when no profiles are specified.
   "scripts": {                              // Collection of scripts to run with qgo exec
     "alias": "<command>"                    // Alias and command

@@ -34,6 +34,10 @@ type Run struct {
 	IgnoreCache bool     `name:"no-cache" type:"bool" help:"Ignore the cache and rebuild, even if no Go files have changed."`
 	Profile     []string `name:"profile" optional:"" help:"Name of the manifest.json profile attribute to apply."`
 	Prekill     bool     `name:"prekill" type:"bool" help:"Run 'qgo kill' before running the command."`
+	PreRun      []string `name:"prerun" optional:"" help:"Run a command before running the application."`
+	PostRun     []string `name:"postrun" optional:"" help:"Run a command after running the application."`
+	PreBuild    []string `name:"prebuild" optional:"" help:"Run a command before building the application."`
+	PostBuild   []string `name:"postbuild" optional:"" help:"Run a command after building the application."`
 	File        string   `arg:"source" optional:"" help:"Go source file (ex: main.go)"`
 	Args        []string `arg:"" optional:"" help:"Arguments to pass to the executable."`
 	// Container string `name:"container" default:"docker" type:"string" enum:"docker,podman" help:"The containerization technology to build with"`
@@ -102,7 +106,17 @@ func (b *Run) Run(c *Context) error {
 			} else {
 				util.BailOnError(util.StreamNoStdErr(killcmd))
 			}
-			if ctx.Tidy && !ctx.Cached {
+			fmt.Println("")
+		}
+
+		// Pre-run
+		if ctx.PreRun != nil {
+			for _, precmd := range ctx.PreRun {
+				if hide {
+					util.BailOnError(util.StreamNoHighlight(precmd))
+				} else {
+					util.BailOnError(util.Stream(precmd))
+				}
 				fmt.Println("")
 			}
 		}
@@ -113,7 +127,6 @@ func (b *Run) Run(c *Context) error {
 					util.BailOnError(util.StreamNoStdErrNoHighlight("go mod tidy"))
 				} else {
 					util.BailOnError(util.StreamNoStdErr("go mod tidy"))
-					// fmt.Println("")
 				}
 			}
 		}
@@ -130,7 +143,11 @@ func (b *Run) Run(c *Context) error {
 	}
 
 	if !hide {
-		fmt.Println(cmd.Display(b.Tips) + "\n")
+		out := cmd.Display(b.Tips)
+		fmt.Println(out)
+		if !strings.HasSuffix(out, "\n") {
+			fmt.Println("")
+		}
 	}
 
 	parentdir := filepath.Dir(ctx.Output())
@@ -307,6 +324,18 @@ func (b *Run) Run(c *Context) error {
 		} else {
 			// fmt.Println(cmd.String())
 			cmd.Run(ctx.CWD)
+
+			// Post-run
+			if ctx.PostRun != nil {
+				for _, postcmd := range ctx.PostRun {
+					if hide {
+						util.BailOnError(util.StreamNoHighlight(postcmd))
+					} else {
+						util.BailOnError(util.Stream(postcmd))
+					}
+					fmt.Println("")
+				}
+			}
 
 			// Forcibly exit the process when the command finishes
 			// (so the reload mechanism will close)

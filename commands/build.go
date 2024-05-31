@@ -29,6 +29,8 @@ type Build struct {
 	Update      bool     `name:"update" short:"u" type:"bool" help:"Update (go mod tidy) before building."`
 	IgnoreCache bool     `name:"no-cache" type:"bool" help:"Ignore the cache and rebuild, even if no Go files have changed."`
 	Profile     []string `name:"profile" optional:"" help:"Name of the manifest.json profile attribute to apply."`
+	PreBuild    []string `name:"prebuild" optional:"" help:"Run a command before building the application."`
+	PostBuild   []string `name:"postbuild" optional:"" help:"Run a command after building the application."`
 	File        string   `arg:"source" optional:"" help:"Go source file (ex: main.go)"`
 	// Container string `name:"container" default:"docker" type:"string" enum:"docker,podman" help:"The containerization technology to build with"`
 }
@@ -85,6 +87,13 @@ func (b *Build) Run(c *Context) error {
 		b.Tips = true
 	}
 
+	if ctx.PreBuild != nil {
+		for _, precmd := range ctx.PreBuild {
+			util.BailOnError(util.Stream(precmd))
+			fmt.Println("")
+		}
+	}
+
 	if !b.DryRun {
 		if ctx.Tidy {
 			if !ctx.Cached {
@@ -119,6 +128,15 @@ func (b *Build) Run(c *Context) error {
 		}
 
 		cmd.Run(ctx.CWD)
+
+		if ctx.PostBuild != nil {
+			for i, postcmd := range ctx.PostBuild {
+				util.BailOnError(util.Stream(postcmd))
+				if i < (len(ctx.PostBuild) - 1) {
+					fmt.Println("")
+				}
+			}
+		}
 
 		if b.Compress {
 			util.Stdout("\n# compressing executable\n")

@@ -43,12 +43,16 @@ type Context struct {
 	OutputPath          string            `json:"output_dir"`
 	OutputFileName      string            `json:"output_filename"`
 	Tidy                bool              `json:"auto_tidy"`
+	Tiny                bool              `json:"use_tinygo"`
+	UPX                 bool              `json:"use_upx"`
+	BuildFast           bool              `json:"build_fast"`
+	PreRun              []string          `json:"before_run"`
+	PostRun             []string          `json:"after_run"`
+	PreBuild            []string          `json:"before_build"`
+	PostBuild           []string          `json:"after_build"`
 	Port                int
-	Tiny                bool `json:"use_tinygo"`
-	UPX                 bool `json:"use_upx"`
 	IgnoreCache         bool
 	Cached              bool
-	BuildFast           bool `json:"build_fast"`
 	Prekill             bool
 }
 
@@ -193,6 +197,54 @@ func (ctx *Context) Configure() {
 
 	if kill, exists := ctx.config.Get("prekill"); exists {
 		ctx.Prekill = kill.(bool)
+	}
+
+	if prerun, exists := ctx.config.Get("prerun"); exists {
+		val, ok := prerun.([]interface{})
+		if ok {
+			ctx.PreRun = []string{}
+			for _, value := range val {
+				ctx.PreRun = append(ctx.PreRun, value.(string))
+			}
+		} else if val2, ok2 := prerun.(string); ok2 {
+			ctx.PreRun = []string{val2}
+		}
+	}
+
+	if postrun, exists := ctx.config.Get("postrun"); exists {
+		val, ok := postrun.([]interface{})
+		if ok {
+			ctx.PostRun = []string{}
+			for _, value := range val {
+				ctx.PostRun = append(ctx.PostRun, value.(string))
+			}
+		} else if val2, ok2 := postrun.(string); ok2 {
+			ctx.PostRun = []string{val2}
+		}
+	}
+
+	if prebuild, exists := ctx.config.Get("prebuild"); exists {
+		val, ok := prebuild.([]interface{})
+		if ok {
+			ctx.PreBuild = []string{}
+			for _, value := range val {
+				ctx.PreBuild = append(ctx.PreBuild, value.(string))
+			}
+		} else if val2, ok2 := prebuild.(string); ok2 {
+			ctx.PreBuild = []string{val2}
+		}
+	}
+
+	if postbuild, exists := ctx.config.Get("postbuild"); exists {
+		val, ok := postbuild.([]interface{})
+		if ok {
+			ctx.PostBuild = []string{}
+			for _, value := range val {
+				ctx.PostBuild = append(ctx.PostBuild, value.(string))
+			}
+		} else if val2, ok2 := postbuild.(string); ok2 {
+			ctx.PostBuild = []string{val2}
+		}
 	}
 
 	// Configured output
