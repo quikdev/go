@@ -109,9 +109,9 @@ func (b *Run) Run(c *Context) error {
 			fmt.Println("")
 		}
 
-		// Pre-run
-		if ctx.PreRun != nil {
-			for _, precmd := range ctx.PreRun {
+		// Pre-build
+		if ctx.PreBuild != nil && !ctx.Cached {
+			for _, precmd := range ctx.PreBuild {
 				if hide {
 					util.BailOnError(util.StreamNoHighlight(precmd))
 				} else {
@@ -139,6 +139,27 @@ func (b *Run) Run(c *Context) error {
 				util.Stdout("\n  " + strings.Replace(util.SubtleHighlighter(key), "\n", "", 1) + util.Dim("=") + strings.ReplaceAll(util.Highlighter(value), "\n", ""))
 			}
 			fmt.Printf("\n\n")
+		}
+	}
+
+	// Post-build
+	if ctx.PostBuild != nil {
+		for _, postcmd := range ctx.PostBuild {
+			cmd.InjectCommand(0, postcmd, false)
+		}
+	}
+
+	// Pre-run
+	if ctx.PreRun != nil {
+		for _, precmd := range ctx.PreRun {
+			cmd.InjectCommand(1, precmd, true)
+		}
+	}
+
+	// Post-run
+	if ctx.PostRun != nil {
+		for _, postcmd := range ctx.PostRun {
+			cmd.InjectCommand(1, postcmd, false)
 		}
 	}
 
@@ -324,18 +345,6 @@ func (b *Run) Run(c *Context) error {
 		} else {
 			// fmt.Println(cmd.String())
 			cmd.Run(ctx.CWD)
-
-			// Post-run
-			if ctx.PostRun != nil {
-				for _, postcmd := range ctx.PostRun {
-					if hide {
-						util.BailOnError(util.StreamNoHighlight(postcmd))
-					} else {
-						util.BailOnError(util.Stream(postcmd))
-					}
-					fmt.Println("")
-				}
-			}
 
 			// Forcibly exit the process when the command finishes
 			// (so the reload mechanism will close)

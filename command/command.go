@@ -14,14 +14,40 @@ import (
 	"github.com/quikdev/go/util"
 )
 
+type InjectedCommand struct {
+	Position int
+	Command  string
+	Noerror  bool
+	Before   bool
+}
+
 type Command struct {
-	str   []string
-	color map[string][]int
-	pid   int
+	str      []string
+	color    map[string][]int
+	pid      int
+	injected []InjectedCommand
 }
 
 func New() *Command {
-	return &Command{str: []string{}, color: make(map[string][]int)}
+	return &Command{
+		str:      []string{},
+		color:    make(map[string][]int),
+		injected: []InjectedCommand{},
+	}
+}
+
+func (cmd *Command) InjectCommand(position int, command string, before bool, noerr ...bool) {
+	noerror := false
+	if len(noerr) > 0 {
+		noerror = noerr[0]
+	}
+
+	cmd.injected = append(cmd.injected, InjectedCommand{
+		Position: position,
+		Command:  command,
+		Noerror:  noerror,
+		Before:   before,
+	})
 }
 
 func (cmd *Command) Add(value ...string) {
@@ -42,7 +68,8 @@ func (cmd *Command) String(includeApp ...bool) string {
 }
 
 func (cmd *Command) Display(help ...bool) string {
-	return colorize(cmd.String(), help...)
+	command := colorize(cmd.String(), help...)
+	return command
 }
 
 func (cmd *Command) Kill() error {
@@ -63,7 +90,9 @@ func (cmd *Command) Run(cwd ...string) {
 	cfg := config.New()
 	vars := cfg.GetEnvVarList()
 
-	for _, code := range commands {
+	for index, code := range commands {
+		cmd.runInjectedCommand(index, true)
+
 		args := make([]string, len(code))
 		for i, line := range code {
 			if i > 1 {
@@ -139,8 +168,37 @@ func (cmd *Command) Run(cwd ...string) {
 		c.Wait()
 		wg.Wait()
 
+		cmd.runInjectedCommand(index, false)
+
 		if exit {
 			os.Exit(1)
+		}
+	}
+}
+
+// func (cmd *Command) displayInjectedCommand(index int, command string) string {
+// 	for _, ic := range cmd.injected {
+// 		if ic.Position == index {
+// 			if ic.Before {
+// 				command = "\n&& " + ic.Command + "|" + command
+// 			} else {
+// 				command += "\n&& " + ic.Command
+// 			}
+// 		}
+// 	}
+
+// 	return strings.ReplaceAll(strings.ReplaceAll(command, "|\n&&", "\n&&"), "|", "\n&&")
+// }
+
+func (cmd *Command) runInjectedCommand(index int, before bool) {
+	for _, ic := range cmd.injected {
+		if ic.Position == index && ic.Before == before {
+			if ic.Noerror {
+				util.BailOnError(util.StreamNoStdErr(ic.Command))
+			} else {
+				util.BailOnError(util.Stream(ic.Command))
+			}
+			fmt.Println("")
 		}
 	}
 }
