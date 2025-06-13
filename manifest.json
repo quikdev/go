@@ -1,6 +1,6 @@
 {
   "name": "qgo",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "Easily build/test Go modules, apps, and services.",
 
   "variables": {

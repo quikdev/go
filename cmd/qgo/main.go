@@ -38,7 +38,7 @@ func main() {
 
 	name = "QuikGo"
 	description = "Develop Go apps, modules, and web assemblies."
-	version = "1.2.6"
+	version = "1.2.7"
 
 	ctx := kong.Parse(
 		root,
