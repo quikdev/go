@@ -29,6 +29,7 @@ func Output(cmd string, cwd ...string) ([]byte, error) {
 
 	parts := strings.Split(cmd, " ")
 	command := exec.Command(parts[0], parts[1:]...)
+	command.Stdin = os.Stdin // forward stdin
 
 	out, err := command.Output()
 
@@ -70,6 +71,8 @@ func streamcmdnohighlight(raw bool, cmd string, nostderr bool, cwd ...string) er
 
 	parts := strings.Split(cmd, " ")
 	command := exec.Command(parts[0], parts[1:]...)
+
+	command.Stdin = os.Stdin // forward stdin
 
 	stdout, err := command.StdoutPipe()
 	if err != nil {
