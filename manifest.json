@@ -1,7 +1,7 @@
 {
   "name": "qgo",
   "version": "1.2.8",
-  "description": "Easily build/test Go modules, apps, and services.",
+  "description": "Easily build/test Go modules, apps, & services.",
 
   "variables": {
     "main.name": "manifest.name",
